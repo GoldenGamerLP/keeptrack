@@ -10,6 +10,7 @@ export default defineNuxtConfig({
     "@nuxt/icon",
     "shadcn-nuxt",
     "@nuxtjs/color-mode",
+    "@nuxthub/core"
   ],
   app: {
     head: {
