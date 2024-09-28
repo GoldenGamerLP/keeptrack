@@ -14,7 +14,7 @@ cleanupOutdatedCaches()
 
 let allowlist: undefined | RegExp[]
 if (import.meta.env.DEV)
-  allowlist = [/^\/$/]
+  allowlist = [/^\/$/, /^\/_nuxt\//, /^\/_icons\//, /^\/_favicons\//]
 
 // to allow work offline
 registerRoute(new NavigationRoute(

@@ -12,6 +12,10 @@ export default defineNuxtConfig({
     "@nuxtjs/color-mode",
     '@vite-pwa/nuxt',
   ],
+  icon: {
+    collections: ["mdi","lucide"],
+    serverBundle: "remote",
+  },
   app: {
     head: {
       charset: "utf-8",
@@ -24,7 +28,7 @@ export default defineNuxtConfig({
         { name: "apple-mobile-web-app-capable", content: "yes" },
         {
           name: "apple-mobile-web-app-status-bar-style",
-          content: "black-translucentnpm",
+          content: "black-translucent",
         },
         { name: "apple-mobile-web-app-title", content: "Nuxt Vite PWA" },
         { name: "msapplication-TileColor", content: "#ffffff" },
@@ -73,9 +77,6 @@ export default defineNuxtConfig({
     },
     client: {
       installPrompt: true,
-      // you don't need to include this: only for testing purposes
-      // if enabling periodic sync for update use 1 hour or so (periodicSyncForUpdates: 3600)
-      periodicSyncForUpdates: 20,
     },
     devOptions: {
       enabled: true,

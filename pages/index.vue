@@ -62,7 +62,7 @@
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <AutoForm :field-config="{ password: { inputProps: { type: 'password' } } }" :schema="loginSchema"
+                <AutoForm :field-config="{ password: { inputProps: { type: 'password' } } }" :schema="loginSchema" :form="loginForm"
                   @submit="loginSubmit">
                   <Button type="submit" class="mt-2" :loading="isLoading">
                     <Icon name="mdi:login" class="size-5 mr-2" />
@@ -80,7 +80,7 @@
 
 <script lang="ts" setup>
 import { toTypedSchema } from "@vee-validate/zod";
-import { useEventListener } from "@vueuse/core"
+import { useEventListener, useMediaQuery } from "@vueuse/core"
 import { useForm } from "vee-validate";
 import * as z from 'zod'
 
@@ -99,9 +99,8 @@ useHead({
   ]
 });
 
-const isInstalled = ref(true);
-//portrait
-const isMobile = ref(true);
+const isInstalled = useMediaQuery('(display-mode:standalone)');
+const isMobile = useMediaQuery('(any-pointer:coarse) and (orientation:portrait)');
 const isInstalling = ref(true);
 const isSupported = ref(true);
 const deferredPrompt = ref<null | Event>(null);
@@ -125,6 +124,10 @@ const registerSchema = z.object({
 
 const registerForm = useForm({
   validationSchema: toTypedSchema(registerSchema),
+})
+
+const loginForm = useForm({
+  validationSchema: toTypedSchema(loginSchema),
 })
 
 useEventListener(window, 'beforeinstallprompt', (event) => {
@@ -185,7 +188,7 @@ const loginSubmit = async (values: Record<string, any>) => {
       console.error('Failed to login');
     }
   } catch (error: any) {
-    registerForm.setErrors({ email: error.message });
+    loginForm.setErrors({ email: error.message });
   } finally {
     isLoading.value = false;
     useRouter().push('/myaccount');

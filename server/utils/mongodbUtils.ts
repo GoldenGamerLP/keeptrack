@@ -1,7 +1,8 @@
 import { Db, MongoClient, ServerApiVersion } from "mongodb";
 
-//log all environment variables as json
-console.log(JSON.stringify(process.env, null, 2));
+if (!process.env.MONGODB_URI) {
+  throw new Error("Please define the MONGODB_URI environment variable inside .env.local");
+}
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(process.env.MONGODB_URI, {
