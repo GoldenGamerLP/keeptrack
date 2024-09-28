@@ -1,5 +1,5 @@
 <template>
-  <div class="h-dvh w-full flex justify-center items-center flex-col">
+  <div class="min-h-screen w-full flex justify-center items-center flex-col">
     <div class="max-w-sm">
       <Icon name="lucide:coins" class="animate-bounce" size="50" />
       <h1 class="text-4xl font-semibold text-primary my-2">KeepTrack</h1>
@@ -9,8 +9,9 @@
       </div>
       <div v-else-if="!isSupported">
         <p class="text-lg max-w-sm">Halte deine Zeiten, Gehalt, Minojob im blick!</p>
-        <Button :disabled="true" icon="mdi:close">Installieren</Button>
-        <p class="text-sm text-muted-foreground">Dein Browser unterstützt leider keine Web-Apps</p>
+        <Button :disabled="true" icon="mdi:close" class="w-full">Installieren</Button>
+        <p class="text-sm text-muted-foreground">Dein Browser unterstützt leider keine Web-Apps! Durch WebApps hast du dennoch ein besseres Erlebnis.</p>
+        <Button variant="link" class="mt-2" @click="skipInstall">Ohne fortfahren</Button>
       </div>
       <div v-else-if="!isInstalled">
         <p class="text-lg max-w-sm">Halte deine Zeiten, Gehalt, Minojob im blick!</p>
@@ -19,8 +20,9 @@
           <p class="text-sm text-muted-foreground">Klicke installieren um die App zu verweden.</p>
         </div>
         <div v-else>
-          <p class="text-sm text-muted-foreground max-w-sm">Installiere die App indem du auf Optionen>App Instalieren
-            klickst (PWA)</p>
+          <p class="text-sm text-muted-foreground max-w-sm">Installiere die App indem du auf <br><span class="underline"> Optionen>App Instalieren</span><br>
+            klickst oder <br> <span class="underline">Teilen>Zum Bildschirm hinzufügen</span>. <br> Mit WebApp hast du ein besseres Erlebnis!</p>
+            <Button variant="link" class="mt-2" @click="skipInstall">Ohne fortfahren</Button>
         </div>
       </div>
       <div v-else>
@@ -99,7 +101,11 @@ useHead({
   ]
 });
 
-const isInstalled = useMediaQuery('(display-mode:standalone)');
+const isStandAlone = useMediaQuery('(display-mode:standalone)');
+const isSkipInstall = ref(false);
+const isInstalled = computed(() => {
+  return isStandAlone.value || isSkipInstall.value;
+});
 const isMobile = useMediaQuery('(any-pointer:coarse) and (orientation:portrait)');
 const isInstalling = ref(true);
 const isSupported = ref(true);
@@ -136,7 +142,7 @@ useEventListener(window, 'beforeinstallprompt', (event) => {
 }, { once: true });
 
 onMounted(() => {
-  isSupported.value = 'getInstalledRelatedApps' in navigator;
+  isSupported.value = 'getInstalledRelatedApps' in navigator || 'getInstalledRelatedApps' in window;
 });
 
 const requestInstall = async () => {
@@ -168,7 +174,7 @@ const registerSubmit = async (values: Record<string, any>) => {
       console.error('Failed to register');
     }
   } catch (error: any) {
-    registerForm.setErrors({ email: error.message });
+    registerForm.setErrors({ email: error.statusMessage });
   } finally {
     isLoading.value = false;
     goToAccount();
@@ -189,7 +195,7 @@ const loginSubmit = async (values: Record<string, any>) => {
       console.error('Failed to login');
     }
   } catch (error: any) {
-    loginForm.setErrors({ email: error.message });
+    loginForm.setErrors({ email: error.statusMessage });
   } finally {
     isLoading.value = false;
     goToAccount();
@@ -198,5 +204,9 @@ const loginSubmit = async (values: Record<string, any>) => {
 
 const goToAccount = () => {
   useRouter().push('/myaccount');
+};
+
+const skipInstall = () => {
+  isSkipInstall.value = true;
 };
 </script>

@@ -50,6 +50,9 @@ export default defineNuxtConfig({
       name: 'KeepTrack',
       short_name: 'KeepTrack',
       theme_color: '#2aaa59',
+      background_color: '#2aaa59',
+      categories: ['productivity', 'finance'],
+      description: 'Halte dein Minijob und andere tätigkeiten im Blick!',
       icons: [
         {
           src: 'pwa-192x192.png',
