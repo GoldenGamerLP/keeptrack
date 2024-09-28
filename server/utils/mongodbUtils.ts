@@ -2,8 +2,9 @@ import { Db, MongoClient, ServerApiVersion } from "mongodb";
 
 const envUsername = process.env.MONGODB_USERNAME;
 const envPassword = process.env.MONGODB_PASSWORD;
-const connectionString = process.env.MONGODB_CONNECTION_STRING;
+const connectionString = process.env.MONGODB_URI;
 const databaseName = process.env.MONGODB_DATABASE;
+console.log("ENV:", process.env.toString());
 
 let uri = "";
 
