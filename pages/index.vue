@@ -133,19 +133,20 @@ const loginForm = useForm({
 useEventListener(window, 'beforeinstallprompt', (event) => {
   event.preventDefault();
   deferredPrompt.value = event;
-});
+}, { once: true });
 
 onMounted(() => {
-  isSupported.value = 'getInstalledRelatedApps' in navigator && 'serviceWorker' in navigator || true;
+  isSupported.value = 'getInstalledRelatedApps' in navigator;
 });
 
 const requestInstall = async () => {
   if (!deferredPrompt.value) return;
   isInstalling.value = true;
+  
   deferredPrompt.value.prompt();
   const choiceResult = await deferredPrompt.value.userChoice;
-  isInstalling.value = false;
   if (choiceResult.outcome === 'accepted') {
+    goToAccount();
     console.log('User accepted the A2HS prompt');
   } else {
     console.log('User dismissed the A2HS prompt');
@@ -170,7 +171,7 @@ const registerSubmit = async (values: Record<string, any>) => {
     registerForm.setErrors({ email: error.message });
   } finally {
     isLoading.value = false;
-    useRouter().push('/myaccount');
+    goToAccount();
   }
 };
 
@@ -191,7 +192,11 @@ const loginSubmit = async (values: Record<string, any>) => {
     loginForm.setErrors({ email: error.message });
   } finally {
     isLoading.value = false;
-    useRouter().push('/myaccount');
+    goToAccount();
   }
+};
+
+const goToAccount = () => {
+  useRouter().push('/myaccount');
 };
 </script>

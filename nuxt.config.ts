@@ -47,9 +47,9 @@ export default defineNuxtConfig({
     filename: sw ? 'sw.ts' : undefined,
     registerType: 'autoUpdate',
     manifest: {
-      name: 'Nuxt Vite PWA',
-      short_name: 'NuxtVitePWA',
-      theme_color: '#ffffff',
+      name: 'KeepTrack',
+      short_name: 'KeepTrack',
+      theme_color: '#2aaa59',
       icons: [
         {
           src: 'pwa-192x192.png',
