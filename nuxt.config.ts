@@ -10,7 +10,7 @@ export default defineNuxtConfig({
     "@nuxt/icon",
     "shadcn-nuxt",
     "@nuxtjs/color-mode",
-    "@nuxthub/core"
+    '@vite-pwa/nuxt',
   ],
   app: {
     head: {
@@ -31,11 +31,58 @@ export default defineNuxtConfig({
         { name: "theme-color", content: "#ffffff" },
         { name: "mobile-web-app-capable", content: "yes" },
       ],
-      link: [{ rel: "manifest", href: "/manifest.webmanifest" }],
     },
   },
   colorMode: {
     classSuffix: "",
     preference: "light",
-  }
+  },
+  pwa: {
+    strategies: sw ? 'injectManifest' : 'generateSW',
+    srcDir: sw ? 'service-worker' : undefined,
+    filename: sw ? 'sw.ts' : undefined,
+    registerType: 'autoUpdate',
+    manifest: {
+      name: 'Nuxt Vite PWA',
+      short_name: 'NuxtVitePWA',
+      theme_color: '#ffffff',
+      icons: [
+        {
+          src: 'pwa-192x192.png',
+          sizes: '192x192',
+          type: 'image/png',
+        },
+        {
+          src: 'pwa-512x512.png',
+          sizes: '512x512',
+          type: 'image/png',
+        },
+        {
+          src: 'pwa-512x512.png',
+          sizes: '512x512',
+          type: 'image/png',
+          purpose: 'any maskable',
+        },
+      ],
+    },
+    workbox: {
+      globPatterns: ['**/*.{js,css,html,png,svg,ico}'],
+    },
+    injectManifest: {
+      globPatterns: ['**/*.{js,css,html,png,svg,ico}'],
+    },
+    client: {
+      installPrompt: true,
+      // you don't need to include this: only for testing purposes
+      // if enabling periodic sync for update use 1 hour or so (periodicSyncForUpdates: 3600)
+      periodicSyncForUpdates: 20,
+    },
+    devOptions: {
+      enabled: true,
+      suppressWarnings: true,
+      navigateFallback: '/',
+      navigateFallbackAllowlist: [/^\/$/],
+      type: 'module',
+    },
+  },
 });

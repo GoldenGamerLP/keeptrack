@@ -13,7 +13,8 @@
                     <PopoverTrigger as-child>
                         <Button size="sm" variant="link">
                             <Avatar title="settings">
-                                <AvatarImage src="https://avatars.githubusercontent.com/u/4723117?v=4" alt="your avatar" />
+                                <AvatarImage src="https://avatars.githubusercontent.com/u/4723117?v=4"
+                                    alt="your avatar" />
                                 <AvatarFallback>
                                     <Icon name="mdi:account" class="size-5" />
                                 </AvatarFallback>
@@ -21,9 +22,10 @@
                             <Icon name="mdi:chevron-down" class="ml-2 size-5 text-popover-foreground" />
                         </Button>
                     </PopoverTrigger>
-                    <PopoverContent>
-                        <ColorMode />
+                    <PopoverContent class="space-y-2">
                         Benutzer: {{ user?.displayname }}
+                        <Seperator orientation="horizontal" />
+                        <ColorMode />
                         <Button class="w-full" variant="outline" @click="logOut">
                             <Icon name="mdi:account" class="mr-2 size-5" />
                             Logge dich aus
@@ -57,7 +59,7 @@
             <div class="mx-2">
                 <div class="flex justify-between items-center">
                     <h2 class="text-xl font-bold">Deine Ziele</h2>
-                    <Button @click="createGoal?.open(null)" variant="link">
+                    <Button @click="createGoal?.open(null)" variant="link" :disabled="computedGoals.length > 3">
                         <Icon name="mdi:plus" class="mr-2 size-5" />
                         Ziel hinzufügen
                     </Button>
@@ -84,11 +86,12 @@
                                 <span class="text-primary">Überstunden: {{ curFormatter.format(ziel.done.earning -
                                     ziel.given.maxsalary) }}
                                     <span class="text-muted-foreground">
-                                        ({{ Math.floor((ziel.done.earning - ziel.given.maxsalary) / ziel.given.salary) }}
+                                        ({{ Math.floor((ziel.done.earning - ziel.given.maxsalary) / ziel.given.salary)
+                                        }}
                                         <span
                                             class="text-xs align-top text-muted-foreground underline-offset-2 underline">
                                             {{ ((ziel.done.earning - ziel.given.maxsalary) / ziel.given.salary * 100 %
-                                            100).toFixed(0) }}</span> .std)</span>
+                                                100).toFixed(0) }}</span> .std)</span>
                                 </span>
                             </p>
                             <h3 class="text-xl font-medium">
@@ -100,8 +103,7 @@
                             <p>Stundenlohn: <code>{{ curFormatter.format(ziel.given.salary) }}</code></p>
                             <p>Max. Verdienst: <code>{{ curFormatter.format(ziel.given.maxsalary) }}</code></p>
                             <p>Auszahl Tag im Monat: <code>{{ ziel.given.paydayofmonth }}</code> </p>
-                            <Progress :model-value="ziel.done.earning" v-bind:max="ziel.given.maxsalary"
-                                class="mt-2" />
+                            <Progress :model-value="ziel.done.earning" :max="ziel.given.maxsalary" class="mt-2" />
                         </CardContent>
                         <CardFooter class="flex justify-between">
                             <Button @click="selectCard(ziel.id)" :disabled="isCardSelected(ziel.id)"
@@ -110,7 +112,8 @@
                                     class="mr-2 size-5" />
                                 {{ isCardSelected(ziel.id) ? 'Ausgewählt' : 'Auswählen' }}
                             </Button>
-                            <Button @click="createGoal?.open(ziel)" variant="outline" size="icon" :title="`edit goal ${ziel.title}`">
+                            <Button @click="createGoal?.open(ziel)" variant="outline" size="icon"
+                                :title="`edit goal ${ziel.title}`">
                                 <Icon name="mdi:pencil" class=" size-5" />
                             </Button>
                         </CardFooter>
@@ -189,9 +192,16 @@
                             <span class="text-muted-foreground">{{ format24HoursData(defaultWorkingTime[1]) }}</span>
                         </div>
                         <Button class="w-full" @click.stop="addWorkingTime" :loading="loadingWorkingTime"
-                            :disabled="!selTime || !currentCard">
-                            <Icon name="mdi:plus" class="mr-2 size-5" />
-                            Hinzufügen
+                            :disabled="!selTime || !currentCard || computedIsAlreadyAdded"
+                            :variant="computedIsAlreadyAdded ? 'destructive' : 'default'">
+                            <template v-if="computedIsAlreadyAdded">
+                                <Icon name="mdi:close" class="mr-2 size-5" />
+                                Arbeitszeit bereits hinzugefügt
+                            </template>
+                            <template v-else>
+                                <Icon name="mdi:plus" class="mr-2 size-5" />
+                                Arbeitszeit hinzufügen
+                            </template>
                         </Button>
                     </form>
                 </CardContent>
@@ -216,7 +226,8 @@
                                 <span class="text-primary/30">{{ entry.id }}</span>
                             </h1>
                             <Button variant="outline" size="icon" class="ml-auto z-10"
-                                @click="deleteWorkingEntry(entry.id)" :loading="deleteWorkingEntryLoading" :title="`lösche arbeits eintrag ${entry.id}`">
+                                @click="deleteWorkingEntry(entry.id)" :loading="deleteWorkingEntryLoading"
+                                :title="`lösche arbeits eintrag ${entry.id}`">
                                 <Icon name="mdi:delete-forever" class="size-5" />
                             </Button>
                         </div>
@@ -285,6 +296,7 @@ import { useUser } from '~/composable/auth';
 import CreateGoal from '~/components/system/modal/CreateGoal.vue';
 import Calendar from '~/components/ui/calendar/Calendar.vue';
 import ColorMode from '~/components/system/color/ColorMode.vue';
+import Seperator from '~/components/ui/separator/Separator.vue';
 import { Progress } from '~/components/ui/progress';
 
 definePageMeta({
@@ -341,6 +353,12 @@ const fetchEditGoal = async (data: { title: string, description: string, salary:
         }, 1000);
     }
 }
+
+//Add button
+const computedIsAlreadyAdded = computed(() => {
+    const time = selTime.value;
+    return time ? includesWorkedDay(time) : false;
+});
 
 //Statistics
 const userStats = useFetch('/api/v1/statistics/get');

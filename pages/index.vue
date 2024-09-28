@@ -79,9 +79,8 @@
 </template>
 
 <script lang="ts" setup>
-import type { NuxtError } from "#app";
 import { toTypedSchema } from "@vee-validate/zod";
-import { useMediaQuery, useEventListener } from "@vueuse/core"
+import { useEventListener } from "@vueuse/core"
 import { useForm } from "vee-validate";
 import * as z from 'zod'
 
