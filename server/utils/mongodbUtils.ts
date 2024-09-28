@@ -1,5 +1,8 @@
 import { Db, MongoClient, ServerApiVersion } from "mongodb";
 
+//log all environment variables as json
+console.log(JSON.stringify(process.env, null, 2));
+
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(process.env.MONGODB_URI, {
   serverApi: {
@@ -24,6 +27,6 @@ process.on("SIGINT", async () => {
   await client.close();
 });
 
-const database = client.db(databaseName);
+const database = client.db(process.env.MONGODB_DATABASE);
 
 export default database as Db;
