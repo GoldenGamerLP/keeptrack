@@ -11,7 +11,7 @@
         <p class="text-lg max-w-sm">Halte deine Zeiten, Gehalt, Minojob im blick!</p>
         <Button :disabled="true" icon="mdi:close" class="w-full">Installieren</Button>
         <p class="text-sm text-muted-foreground">Dein Browser unterstützt leider keine Web-Apps! Durch WebApps hast du dennoch ein besseres Erlebnis.</p>
-        <Button variant="link" class="mt-2" @click="skipInstall">Ohne fortfahren</Button>
+        <Button variant="link" class="mt-2" @click="skipInstall()">Ohne fortfahren</Button>
       </div>
       <div v-else-if="!isInstalled">
         <p class="text-lg max-w-sm">Halte deine Zeiten, Gehalt, Minojob im blick!</p>
@@ -22,7 +22,7 @@
         <div v-else>
           <p class="text-sm text-muted-foreground max-w-sm">Installiere die App indem du auf <br><span class="underline"> Optionen>App Instalieren</span><br>
             klickst oder <br> <span class="underline">Teilen>Zum Bildschirm hinzufügen</span>. <br> Mit WebApp hast du ein besseres Erlebnis!</p>
-            <Button variant="link" class="mt-2" @click="skipInstall">Ohne fortfahren</Button>
+            <Button variant="link" class="mt-2" @click="skipInstall()">Ohne fortfahren</Button>
         </div>
       </div>
       <div v-else>
