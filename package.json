@@ -22,7 +22,6 @@
     "clsx": "^2.1.1",
     "lucia": "^3.2.0",
     "lucide-vue-next": "^0.439.0",
-    "mongodb": "^6.9.0-dev.20240928.sha.3f9d2437",
     "nuxt": "^3.13.0",
     "radix-vue": "^1.9.5",
     "shadcn-nuxt": "^0.10.4",
@@ -30,7 +29,8 @@
     "tailwindcss-animate": "^1.0.7",
     "vee-validate": "^4.13.2",
     "vue": "latest",
-    "zod": "^3.23.8"
+    "zod": "^3.23.8",
+    "mongodb": "6.9.0"
   },
   "devDependencies": {
     "@nuxtjs/color-mode": "^3.5.1",
