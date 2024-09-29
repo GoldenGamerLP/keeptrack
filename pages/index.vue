@@ -45,6 +45,8 @@ useHead({
     title: 'KeepTrack',
     meta: [
         { name: 'description', content: 'Halte deine Zeiten, Gehalt, Minojob im blick!' },
+        { name: 'theme-color', content: '#2aaa59' },
+        { name: 'publisher', content: 'KeepTrack' },
     ],
 });
 

@@ -20,27 +20,42 @@ export default defineNuxtConfig({
     head: {
       charset: "utf-8",
       meta: [
+        // Primary Meta Tags
         {
           name: "viewport",
           content: "width=device-width, initial-scale=1, viewport-fit=cover",
         },
+        { name: "twitter:image", content: "/pwa-512x512.png" },
+        { name: "x-ua-compatible", content: "IE=edge" },
         { name: "format-detection", content: "telephone=no" },
+        //PWA Meta Tags
         { name: "apple-mobile-web-app-capable", content: "yes" },
         {
           name: "apple-mobile-web-app-status-bar-style",
-          content: "translucent",
+          content: "#2aaa59",
         },
         { name: "apple-mobile-web-app-title", content: "KeepTrack" },
+        { name: "apple-touch-fullscreen", content: "yes" },
         { name: "msapplication-TileColor", content: "#2aaa59" },
         { name: "theme-color", content: "#2aaa59" },
         { name: "mobile-web-app-capable", content: "yes" },
         { name: "application-name", content: "KeepTrack" },
+        // SEO Meta Tags
+        {
+          name: "description",
+          content: "Halte dein Minijob und andere tätigkeiten im Blick!",
+        },
+        { name: "robots", content: "index, follow" },
+        { name: "author", content: "KeepTrack" },
+        { name: "keywords", content: "Minijob, Job, Arbeit, Tätigkeit" },
+        //Apple links
+        { name: "apple-touch-icon", content: "/pwa-512x512.png" },
+        { name: "apple-touch-icon", content: "/pwa-192x192.png" },
       ],
     },
   },
   colorMode: {
     classSuffix: "",
-    preference: "light",
   },
   pwa: {
     strategies: sw ? 'injectManifest' : 'generateSW',
