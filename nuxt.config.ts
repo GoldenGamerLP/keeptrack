@@ -28,12 +28,13 @@ export default defineNuxtConfig({
         { name: "apple-mobile-web-app-capable", content: "yes" },
         {
           name: "apple-mobile-web-app-status-bar-style",
-          content: "black-translucent",
+          content: "translucent",
         },
-        { name: "apple-mobile-web-app-title", content: "Nuxt Vite PWA" },
-        { name: "msapplication-TileColor", content: "#ffffff" },
-        { name: "theme-color", content: "#ffffff" },
+        { name: "apple-mobile-web-app-title", content: "KeepTrack" },
+        { name: "msapplication-TileColor", content: "#2aaa59" },
+        { name: "theme-color", content: "#2aaa59" },
         { name: "mobile-web-app-capable", content: "yes" },
+        { name: "application-name", content: "KeepTrack" },
       ],
     },
   },
@@ -80,6 +81,8 @@ export default defineNuxtConfig({
     },
     client: {
       installPrompt: true,
+      registerPlugin: true,
+      periodicSyncForUpdates: 3600,
     },
     devOptions: {
       enabled: true,

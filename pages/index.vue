@@ -17,7 +17,8 @@
 
         </header>
         <footer class="mx-2 w-full mb-2 space-y-2 max-w-md">
-            <Button class="w-full" :disabled="!isMobile || !pwaInstallSupported || !hasPrompt" @click="requestInstall" v-if="pwaInstallSupported">
+            <Button class="w-full" :disabled="!isMobile || !pwaInstallSupported || !hasPrompt" @click="requestInstall"
+                v-if="pwaInstallSupported">
                 <Icon name="mdi:download-box" class="mr-2" />
                 {{ (!pwaInstallSupported || !hasPrompt && isMobile) ? 'Lese dir die Anleitung durch' : 'Installieren' }}
             </Button>
@@ -26,6 +27,7 @@
                     Ohne Installation fortfahren (nicht empfohlen)
                 </NuxtLink>
             </Button>
+            {{ pwaInstallSupported }} {{ hasPrompt }}
         </footer>
     </div>
 </template>
@@ -38,6 +40,7 @@ const pwaInstallSupported = ref<boolean>(false)
 const hasPrompt = computed(() => !!deferredPrompt);
 const isMobile = ref(false)
 const userAgent = ref<string>();
+const { $pwa } = useNuxtApp();
 
 
 useHead({
@@ -55,8 +58,14 @@ onBeforeMount(() => {
 });
 
 onMounted(() => {
-
     isMobile.value = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+    const choice = $pwa!.install();
+    choice.then((result) => {
+        if (result?.outcome === 'accepted') {
+            useRouter().push('/authentication');
+        }
+    });
 
     window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
@@ -65,6 +74,7 @@ onMounted(() => {
 
     window.addEventListener('appinstalled', () => {
         deferredPrompt = null;
+        useRouter().push('/authentication');
     });
 
     //compatibility check
