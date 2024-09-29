@@ -1,5 +1,5 @@
 <template>
-    <div class="max-h-svh h-screen flex flex-col justify-between items-center">
+    <div class="h-screen flex flex-col justify-between items-center">
         <header class="max-w-sm mt-32">
             <Icon name="lucide:coins" class="animate-bounce" size="50" />
             <h1 class="text-4xl font-semibold text-primary my-2">KeepTrack</h1>
@@ -32,12 +32,11 @@
 
 <script lang="ts" setup>
 import type { BeforeInstallPromptEvent } from '@vite-pwa/nuxt/dist/runtime/plugins/types.js';
-import { useMediaQuery } from '@vueuse/core';
 
 let deferredPrompt: BeforeInstallPromptEvent | null = null;
 const pwaInstallSupported = ref<boolean>(false)
 const hasPrompt = computed(() => !!deferredPrompt);
-const isMobile = useMediaQuery('(any-pointer:coarse) and (orientation:portrait)');
+const isMobile = ref(false)
 const userAgent = ref<string>();
 
 
@@ -56,6 +55,9 @@ onBeforeMount(() => {
 });
 
 onMounted(() => {
+
+    isMobile.value = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
     window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
         deferredPrompt = e as BeforeInstallPromptEvent;
