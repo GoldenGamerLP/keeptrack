@@ -17,7 +17,7 @@
 
         </header>
         <footer class="mx-2 w-full mb-2 space-y-2 max-w-md">
-            <Button class="w-full" :disabled="!isMobile || !pwaInstallSupported || !hasPrompt" @click="requestInstall">
+            <Button class="w-full" :disabled="!isMobile || !pwaInstallSupported || !hasPrompt" @click="requestInstall" v-if="pwaInstallSupported">
                 <Icon name="mdi:download-box" class="mr-2" />
                 {{ (!pwaInstallSupported || !hasPrompt && isMobile) ? 'Lese dir die Anleitung durch' : 'Installieren' }}
             </Button>
@@ -37,7 +37,7 @@ import { useMediaQuery } from '@vueuse/core';
 let deferredPrompt: BeforeInstallPromptEvent | null = null;
 const pwaInstallSupported = ref<boolean>(false)
 const hasPrompt = computed(() => !!deferredPrompt);
-const isMobile = useMediaQuery('(max-width: 768px) and (orientation: portrait)');
+const isMobile = useMediaQuery('(any-pointer:coarse) and (orientation:portrait)');
 const userAgent = ref<string>();
 
 
