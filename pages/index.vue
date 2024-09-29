@@ -27,7 +27,6 @@
                     Ohne Installation fortfahren (nicht empfohlen)
                 </NuxtLink>
             </Button>
-            {{ pwaInstallSupported }} {{ hasPrompt }}
         </footer>
     </div>
 </template>
