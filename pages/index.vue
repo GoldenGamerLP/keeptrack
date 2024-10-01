@@ -2,6 +2,7 @@
     <div class="h-screen flex flex-col justify-between items-center">
         <header class="max-w-sm mt-32">
             <Icon name="lucide:coins" class="animate-bounce" size="50" />
+            <h1 class="text-2xl font-bold text-primary">KeepTrack</h1>
             <p class="text-lg max-w-sm">Halte deine Zeiten, Gehalt, Minojob im blick!</p>
             <p class="text-sm text-muted-foreground" v-if="!isMobile">Diese App funkioniert nur auf dem Handy.</p>
             <p v-if="isMobile && !pwaInstallSupported || !hasPrompt && isMobile" class="text-sm">
