@@ -26,6 +26,11 @@
                     Ohne Installation fortfahren (nicht empfohlen)
                 </NuxtLink>
             </Button>
+            <p>debug</p>
+            <p>useragent: {{ userAgent }}</p>
+            <p>isMobile: {{ isMobile }}</p>
+            <p>pwaInstallSupported: {{ pwaInstallSupported }}</p>
+            <p>hasPrompt: {{ hasPrompt }}</p>
         </footer>
     </div>
 </template>
