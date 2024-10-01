@@ -2,11 +2,10 @@
     <div class="h-screen flex flex-col justify-between items-center">
         <header class="max-w-sm mt-32">
             <Icon name="lucide:coins" class="animate-bounce" size="50" />
-            <h1 class="text-4xl font-semibold text-primary my-2">KeepTrack</h1>
             <p class="text-lg max-w-sm">Halte deine Zeiten, Gehalt, Minojob im blick!</p>
             <p class="text-sm text-muted-foreground" v-if="!isMobile">Diese App funkioniert nur auf dem Handy.</p>
             <p v-if="isMobile && !pwaInstallSupported || !hasPrompt && isMobile" class="text-sm">
-                <Icon name="lucide:badge-check" class="text-primary" />
+                <Icon name="mdi:close-box" class="text-destructive" />
                 <template v-if="userAgent === 'safari'">
                     Um die App zu installieren, klicke auf das Teilen-Symbol und wähle "Zum Home-Bildschirm" aus.
                 </template>
@@ -17,7 +16,7 @@
 
         </header>
         <footer class="mx-2 w-full mb-2 space-y-2 max-w-md">
-            <Button class="w-full" @click="requestInstall" v-if="pwaInstallSupported">
+            <Button class="w-full" @click="requestInstall" v-if="pwaInstallSupported" :variant="hasPrompt && isMobile ? 'default' : 'destructive'" :disabled="!isMobile">
                 <Icon name="mdi:download-box" class="mr-2" />
                 {{ (!pwaInstallSupported || !hasPrompt && isMobile) ? 'Lese dir die Anleitung durch' : 'Installieren' }}
             </Button>
@@ -38,8 +37,6 @@ const pwaInstallSupported = ref<boolean>(false)
 const hasPrompt = computed(() => !!deferredPrompt);
 const isMobile = ref(false)
 const userAgent = ref<string>();
-const { $pwa } = useNuxtApp();
-
 
 useHead({
     title: 'KeepTrack',
@@ -93,7 +90,7 @@ const requestInstall = async () => {
         deferredPrompt = null;
         // Act on the user's choice
         if (outcome === 'accepted') {
-            console.log('User accepted the install prompt.');
+            useRouter().push('/authentication');
         } else if (outcome === 'dismissed') {
             console.log('User dismissed the install prompt');
         }
