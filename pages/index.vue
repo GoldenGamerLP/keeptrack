@@ -10,18 +10,18 @@
                 <template v-if="userAgent === 'safari'">
                     Um die App zu installieren, klicke auf das Teilen-Symbol und wähle "Zum Home-Bildschirm" aus.
                 </template>
-                <template v-else="userAgent === 'chrome'">
-                    Um die App zu installieren, klicke auf das Menü und wähle "Zum Startbildschirm hinzufügen" aus.
+                <template v-else>
+                    Um die App zu installieren, klicke auf Mehr oder das Teilen-Symbol und wähle "Zum Startbildschirm hinzufügen" aus.
                 </template>
             </p>
 
         </header>
         <footer class="mx-2 w-full mb-2 space-y-2 max-w-md sm:max-w-sm">
             <Button class="w-full" @click="requestInstall" v-if="pwaInstallSupported" :variant="(hasPrompt && isMobile) ? 'default' : 'destructive'" :disabled="!isMobile">
-                <Icon :name="hasPrompt && isMobile ? 'mdi:close' : 'mdi:download'" class="mr-2" />
+                <Icon :name="(hasPrompt && isMobile) ? 'mdi:download' : 'mdi:close'" class="mr-2" />
                 {{ (isMobile && pwaInstallSupported && hasPrompt) ? 'Installieren' : 'Lese dir die Anleitung durch' }}
             </Button>
-            <Button variant="outline" class="w-full" :disabled="!isMobile">
+            <Button variant="outline" class="w-full" :disabled="!isMobile" v-if="!(pwaInstallSupported && hasPrompt)">
                 <NuxtLink to="/authentication">
                     Ohne Installation fortfahren (nicht empfohlen)
                 </NuxtLink>
@@ -32,11 +32,12 @@
 
 <script lang="ts" setup>
 import type { BeforeInstallPromptEvent } from '@vite-pwa/nuxt/dist/runtime/plugins/types.js';
+import { useMediaQuery } from '@vueuse/core';
 
 let deferredPrompt: BeforeInstallPromptEvent | null = null;
-const pwaInstallSupported = ref<boolean>(false)
+const pwaInstallSupported = ref<boolean>(false);
 const hasPrompt = computed(() => !!deferredPrompt);
-const isMobile = ref(false)
+const isMobile = useMediaQuery('(any-pointer:coarse) and (orientation:portrait)');
 const userAgent = ref<string>();
 
 useHead({
@@ -61,8 +62,6 @@ onBeforeRouteUpdate(() => {
 });
 
 onMounted(() => {
-    isMobile.value = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-
     window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
         deferredPrompt = e as BeforeInstallPromptEvent;
