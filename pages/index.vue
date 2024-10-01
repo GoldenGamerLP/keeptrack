@@ -15,10 +15,10 @@
             </p>
 
         </header>
-        <footer class="mx-2 w-full mb-2 space-y-2 max-w-md">
+        <footer class="mx-2 w-full mb-2 space-y-2 max-w-md sm:max-w-sm">
             <Button class="w-full" @click="requestInstall" v-if="pwaInstallSupported" :variant="hasPrompt && isMobile ? 'default' : 'destructive'" :disabled="!isMobile">
-                <Icon name="mdi:download-box" class="mr-2" />
-                {{ (!pwaInstallSupported || !hasPrompt && isMobile) ? 'Lese dir die Anleitung durch' : 'Installieren' }}
+                <Icon :name="hasPrompt && isMobile ? 'mdi:close' : 'mdi:download'" class="mr-2" />
+                {{ (isMobile || (pwaInstallSupported && hasPrompt)) ? 'Installieren' : 'Lese dir die Anleitung durch' }}
             </Button>
             <Button variant="outline" class="w-full" :disabled="!isMobile">
                 <NuxtLink to="/authentication">
