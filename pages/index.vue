@@ -14,9 +14,12 @@
                     Um die App zu installieren, klicke auf Mehr oder das Teilen-Symbol und wähle "Zum Startbildschirm hinzufügen" aus.
                 </template>
             </p>
-
+            <p v-if="(pwaInstallSupported && hasPrompt)" class="text-sm">
+                <Icon name="mdi:check-all" class="text-success" />
+                Klicke auf Installieren um fortzufahren.
+            </p>
         </header>
-        <footer class="mx-2 w-full mb-2 space-y-2 max-w-md sm:max-w-sm">
+        <footer class="mx-2 w-full mb-2 space-y-2 max-w-sm sm:max-w-md">
             <Button class="w-full" @click="requestInstall" v-if="pwaInstallSupported" :variant="(hasPrompt && isMobile) ? 'default' : 'destructive'" :disabled="!isMobile">
                 <Icon :name="(hasPrompt && isMobile) ? 'mdi:download' : 'mdi:close'" class="mr-2" />
                 {{ (isMobile && pwaInstallSupported && hasPrompt) ? 'Installieren' : 'Lese dir die Anleitung durch' }}
@@ -26,11 +29,6 @@
                     Ohne Installation fortfahren (nicht empfohlen)
                 </NuxtLink>
             </Button>
-            <p>debug</p>
-            <p>useragent: {{ userAgent }}</p>
-            <p>isMobile: {{ isMobile }}</p>
-            <p>pwaInstallSupported: {{ pwaInstallSupported }}</p>
-            <p>hasPrompt: {{ hasPrompt }}</p>
         </footer>
     </div>
 </template>
