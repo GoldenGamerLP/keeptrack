@@ -14,7 +14,7 @@
                     Um die App zu installieren, klicke auf Mehr oder das Teilen-Symbol und wähle "Zum Startbildschirm hinzufügen" aus.
                 </template>
             </p>
-            <p v-if="(pwaInstallSupported && hasPrompt && isMobile)" class="text-sm">
+            <p v-if="(pwaInstallSupported && hasPrompt)" class="text-sm">
                 <Icon name="mdi:check-all" class="text-primary" />
                 Klicke auf Installieren um fortzufahren.
             </p>
