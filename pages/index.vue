@@ -41,7 +41,7 @@ import { useMediaQuery } from '@vueuse/core';
 
 const deferredPrompt = ref<BeforeInstallPromptEvent | null>(null);
 const pwaInstallSupported = ref<boolean>(false);
-const hasPrompt = computed(() => !!deferredPrompt);
+const hasPrompt = computed(() => !!deferredPrompt.value);
 const isMobile = useMediaQuery('(any-pointer:coarse) and (orientation:portrait)');
 const userAgent = ref<string>();
 
@@ -60,6 +60,13 @@ onBeforeRouteUpdate(() => {
         useRouter().push('/authentication');
     }
 
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt.value = e as BeforeInstallPromptEvent;
+    });
+});
+
+onBeforeMount(() => {
     window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
         deferredPrompt.value = e as BeforeInstallPromptEvent;
@@ -87,7 +94,10 @@ onMounted(() => {
 });
 
 const requestInstall = async () => {
+    console.log(deferredPrompt.value)
+    console.log('Requesting user to install the app');
     if (deferredPrompt.value) {
+        console.log('Prompting user to install the app');
         deferredPrompt.value.prompt();
         // Find out whether the user confirmed the installation or not
         const { outcome } = await deferredPrompt.value.userChoice;
