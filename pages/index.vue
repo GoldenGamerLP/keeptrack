@@ -15,7 +15,7 @@
                 </template>
             </p>
             <p v-if="(pwaInstallSupported && hasPrompt)" class="text-sm">
-                <Icon name="mdi:check-all" class="text-success" />
+                <Icon name="mdi:check-all" class="text-primary" />
                 Klicke auf Installieren um fortzufahren.
             </p>
         </header>
