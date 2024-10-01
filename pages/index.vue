@@ -39,7 +39,7 @@
 import type { BeforeInstallPromptEvent } from '@vite-pwa/nuxt/dist/runtime/plugins/types.js';
 import { useMediaQuery } from '@vueuse/core';
 
-let deferredPrompt: BeforeInstallPromptEvent | null = null;
+const deferredPrompt = ref<BeforeInstallPromptEvent | null>(null);
 const pwaInstallSupported = ref<boolean>(false);
 const hasPrompt = computed(() => !!deferredPrompt);
 const isMobile = useMediaQuery('(any-pointer:coarse) and (orientation:portrait)');
@@ -62,18 +62,18 @@ onBeforeRouteUpdate(() => {
 
     window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
-        deferredPrompt = e as BeforeInstallPromptEvent;
+        deferredPrompt.value = e as BeforeInstallPromptEvent;
     });
 });
 
 onMounted(() => {
     window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
-        deferredPrompt = e as BeforeInstallPromptEvent;
+        deferredPrompt.value = e as BeforeInstallPromptEvent;
     });
 
     window.addEventListener('appinstalled', () => {
-        deferredPrompt = null;
+        deferredPrompt.value = null;
         useRouter().push('/authentication');
     });
 
@@ -87,12 +87,12 @@ onMounted(() => {
 });
 
 const requestInstall = async () => {
-    if (deferredPrompt) {
-        deferredPrompt.prompt();
+    if (deferredPrompt.value) {
+        deferredPrompt.value.prompt();
         // Find out whether the user confirmed the installation or not
-        const { outcome } = await deferredPrompt.userChoice;
+        const { outcome } = await deferredPrompt.value.userChoice;
         // The deferredPrompt can only be used once.
-        deferredPrompt = null;
+        deferredPrompt.value = null;
         // Act on the user's choice
         if (outcome === 'accepted') {
             useRouter().push('/authentication');
