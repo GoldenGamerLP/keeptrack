@@ -5,7 +5,7 @@
             <h1 class="text-2xl font-bold text-primary">KeepTrack</h1>
             <p class="text-lg max-w-sm">Halte deine Zeiten, Gehalt, Minojob im blick!</p>
             <p class="text-sm text-muted-foreground" v-if="!isMobile">Diese App funkioniert nur auf dem Handy.</p>
-            <p v-if="isMobile && !pwaInstallSupported || !hasPrompt && isMobile" class="text-sm">
+            <p v-if="isMobile && (pwaInstallSupported && !hasPrompt)" class="text-sm">
                 <Icon name="mdi:close-box" class="text-destructive" />
                 <template v-if="userAgent === 'safari'">
                     Um die App zu installieren, klicke auf das Teilen-Symbol und wähle "Zum Home-Bildschirm" aus.
@@ -17,9 +17,9 @@
 
         </header>
         <footer class="mx-2 w-full mb-2 space-y-2 max-w-md sm:max-w-sm">
-            <Button class="w-full" @click="requestInstall" v-if="pwaInstallSupported" :variant="hasPrompt && isMobile ? 'default' : 'destructive'" :disabled="!isMobile">
+            <Button class="w-full" @click="requestInstall" v-if="pwaInstallSupported" :variant="(hasPrompt && isMobile) ? 'default' : 'destructive'" :disabled="!isMobile">
                 <Icon :name="hasPrompt && isMobile ? 'mdi:close' : 'mdi:download'" class="mr-2" />
-                {{ (isMobile || (pwaInstallSupported && hasPrompt)) ? 'Installieren' : 'Lese dir die Anleitung durch' }}
+                {{ (isMobile && pwaInstallSupported && hasPrompt) ? 'Installieren' : 'Lese dir die Anleitung durch' }}
             </Button>
             <Button variant="outline" class="w-full" :disabled="!isMobile">
                 <NuxtLink to="/authentication">
