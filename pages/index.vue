@@ -50,11 +50,16 @@ useHead({
     ],
 });
 
-onBeforeMount(() => {
-    //Redirect if already installed
+onBeforeRouteUpdate(() => {
+    //If display is standalone, redirect to authentication
     if (window.matchMedia('(display-mode: standalone)').matches) {
         useRouter().push('/authentication');
     }
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e as BeforeInstallPromptEvent;
+    });
 });
 
 onMounted(() => {
@@ -81,12 +86,17 @@ onMounted(() => {
 
 const requestInstall = async () => {
     if (deferredPrompt) {
-        const choice = $pwa!.install();
-        choice.then((result) => {
-            if (result?.outcome === 'accepted') {
-                useRouter().push('/authentication');
-            }
-        });
+        deferredPrompt.prompt();
+        // Find out whether the user confirmed the installation or not
+        const { outcome } = await deferredPrompt.userChoice;
+        // The deferredPrompt can only be used once.
+        deferredPrompt = null;
+        // Act on the user's choice
+        if (outcome === 'accepted') {
+            console.log('User accepted the install prompt.');
+        } else if (outcome === 'dismissed') {
+            console.log('User dismissed the install prompt');
+        }
     }
 };
 
