@@ -14,7 +14,7 @@
                     Um die App zu installieren, klicke auf Mehr oder das Teilen-Symbol und wähle "Zum Startbildschirm hinzufügen" aus.
                 </template>
             </p>
-            <p v-if="(pwaInstallSupported && hasPrompt)" class="text-sm">
+            <p v-if="(pwaInstallSupported && hasPrompt && isMobile)" class="text-sm">
                 <Icon name="mdi:check-all" class="text-primary" />
                 Klicke auf Installieren um fortzufahren.
             </p>
@@ -39,7 +39,7 @@ import { useMediaQuery } from '@vueuse/core';
 
 const deferredPrompt = ref<BeforeInstallPromptEvent | null>(null);
 const pwaInstallSupported = ref<boolean>(false);
-const hasPrompt = computed(() => !!deferredPrompt.value);
+const hasPrompt = computed(() => !!deferredPrompt);
 const isMobile = useMediaQuery('(any-pointer:coarse) and (orientation:portrait)');
 const userAgent = ref<string>();
 
@@ -58,13 +58,6 @@ onBeforeRouteUpdate(() => {
         useRouter().push('/authentication');
     }
 
-    window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault();
-        deferredPrompt.value = e as BeforeInstallPromptEvent;
-    });
-});
-
-onBeforeMount(() => {
     window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
         deferredPrompt.value = e as BeforeInstallPromptEvent;
@@ -92,10 +85,7 @@ onMounted(() => {
 });
 
 const requestInstall = async () => {
-    console.log(deferredPrompt.value)
-    console.log('Requesting user to install the app');
     if (deferredPrompt.value) {
-        console.log('Prompting user to install the app');
         deferredPrompt.value.prompt();
         // Find out whether the user confirmed the installation or not
         const { outcome } = await deferredPrompt.value.userChoice;
