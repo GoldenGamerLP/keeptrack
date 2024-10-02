@@ -14,7 +14,7 @@
                     Um die App zu installieren, klicke auf Mehr oder das Teilen-Symbol und wähle "Zum Startbildschirm hinzufügen" aus.
                 </template>
             </p>
-            <p v-if="(pwaInstallSupported && hasPrompt)" class="text-sm">
+            <p v-if="(pwaInstallSupported && hasPrompt && isMobile)" class="text-sm">
                 <Icon name="mdi:check-all" class="text-primary" />
                 Klicke auf Installieren um fortzufahren.
             </p>
@@ -24,9 +24,9 @@
                 <Icon :name="(hasPrompt && isMobile) ? 'mdi:download' : 'mdi:close'" class="mr-2" />
                 {{ (isMobile && pwaInstallSupported && hasPrompt) ? 'Installieren' : 'Lese dir die Anleitung durch' }}
             </Button>
-            <Button variant="outline" class="w-full" :disabled="!isMobile" v-if="!(pwaInstallSupported && hasPrompt)">
+            <Button variant="outline" class="w-full" v-if="!(pwaInstallSupported && hasPrompt)">
                 <NuxtLink to="/authentication">
-                    Ohne Installation fortfahren (nicht empfohlen)
+                    Ohne Installation fortfahren
                 </NuxtLink>
             </Button>
         </footer>
@@ -39,8 +39,9 @@ import { useMediaQuery } from '@vueuse/core';
 
 const deferredPrompt = ref<BeforeInstallPromptEvent | null>(null);
 const pwaInstallSupported = ref<boolean>(false);
-const hasPrompt = computed(() => !!deferredPrompt);
-const isMobile = useMediaQuery('(any-pointer:coarse) and (orientation:portrait)');
+const hasPrompt = computed(() => !!deferredPrompt.value);
+const isMobile = useMediaQuery('(any-pointer:coarse)');
+const isStandalone = useMediaQuery('(display-mode: standalone');
 const userAgent = ref<string>();
 
 useHead({
@@ -54,7 +55,7 @@ useHead({
 
 onBeforeRouteUpdate(() => {
     //If display is standalone, redirect to authentication
-    if (window.matchMedia('(display-mode: standalone)').matches) {
+    if (isStandalone.value) {
         useRouter().push('/authentication');
     }
 
@@ -63,6 +64,12 @@ onBeforeRouteUpdate(() => {
         deferredPrompt.value = e as BeforeInstallPromptEvent;
     });
 });
+
+onBeforeMount(() => {
+    if (isStandalone.value) {
+        useRouter().push('/authentication');
+    }
+})
 
 onMounted(() => {
     window.addEventListener('beforeinstallprompt', (e) => {
