@@ -41,6 +41,7 @@ const deferredPrompt = ref<BeforeInstallPromptEvent | null>(null);
 const pwaInstallSupported = ref<boolean>(false);
 const hasPrompt = computed(() => !!deferredPrompt.value);
 const isMobile = useMediaQuery('(any-pointer:coarse)');
+const isStandalone = useMediaQuery('(display-mode: standalone');
 const userAgent = ref<string>();
 
 useHead({
@@ -54,7 +55,7 @@ useHead({
 
 onBeforeRouteUpdate(() => {
     //If display is standalone, redirect to authentication
-    if (window.matchMedia('(display-mode: standalone)').matches) {
+    if (isStandalone.value) {
         useRouter().push('/authentication');
     }
 
@@ -63,6 +64,12 @@ onBeforeRouteUpdate(() => {
         deferredPrompt.value = e as BeforeInstallPromptEvent;
     });
 });
+
+onBeforeMount(() => {
+    if (isStandalone.value) {
+        useRouter().push('/authentication');
+    }
+})
 
 onMounted(() => {
     window.addEventListener('beforeinstallprompt', (e) => {
