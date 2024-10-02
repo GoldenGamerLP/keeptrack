@@ -24,7 +24,7 @@
                 <Icon :name="(hasPrompt && isMobile) ? 'mdi:download' : 'mdi:close'" class="mr-2" />
                 {{ (isMobile && pwaInstallSupported && hasPrompt) ? 'Installieren' : 'Lese dir die Anleitung durch' }}
             </Button>
-            <Button variant="outline" class="w-full" :disabled="!isMobile" v-if="!(pwaInstallSupported && hasPrompt)">
+            <Button variant="outline" class="w-full" v-if="!(pwaInstallSupported && hasPrompt)">
                 <NuxtLink to="/authentication">
                     Ohne Installation fortfahren
                 </NuxtLink>
