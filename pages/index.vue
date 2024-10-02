@@ -40,7 +40,7 @@ import { useMediaQuery } from '@vueuse/core';
 const deferredPrompt = ref<BeforeInstallPromptEvent | null>(null);
 const pwaInstallSupported = ref<boolean>(false);
 const hasPrompt = computed(() => !!deferredPrompt);
-const isMobile = useMediaQuery('(any-pointer:coarse) and (orientation:portrait)');
+const isMobile = useMediaQuery('(any-pointer:coarse)');
 const userAgent = ref<string>();
 
 useHead({
