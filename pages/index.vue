@@ -14,7 +14,7 @@
                     Um die App zu installieren, klicke auf Mehr oder das Teilen-Symbol und wähle "Zum Startbildschirm hinzufügen" aus.
                 </template>
             </p>
-            <p v-if="(pwaInstallSupported && hasPrompt)" class="text-sm">
+            <p v-if="(pwaInstallSupported && hasPrompt && isMobile)" class="text-sm">
                 <Icon name="mdi:check-all" class="text-primary" />
                 Klicke auf Installieren um fortzufahren.
             </p>
@@ -26,7 +26,7 @@
             </Button>
             <Button variant="outline" class="w-full" :disabled="!isMobile" v-if="!(pwaInstallSupported && hasPrompt)">
                 <NuxtLink to="/authentication">
-                    Ohne Installation fortfahren (nicht empfohlen)
+                    Ohne Installation fortfahren
                 </NuxtLink>
             </Button>
         </footer>
