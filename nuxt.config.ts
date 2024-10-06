@@ -1,6 +1,6 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 
-const sw = process.env.SW === "true";
+const sw = process.env.SW === 'true';
 
 export default defineNuxtConfig({
   compatibilityDate: "2024-04-03",
@@ -32,14 +32,16 @@ export default defineNuxtConfig({
         { name: "apple-mobile-web-app-capable", content: "yes" },
         {
           name: "apple-mobile-web-app-status-bar-style",
-          content: "#2aaa59",
+          content: "black-translucent",
         },
         { name: "apple-mobile-web-app-title", content: "KeepTrack" },
         { name: "apple-touch-fullscreen", content: "yes" },
         { name: "msapplication-TileColor", content: "#2aaa59" },
+        { name: "msapplication-TileImage", content: "/pwa-512x512.png" },
         { name: "theme-color", content: "#2aaa59" },
         { name: "mobile-web-app-capable", content: "yes" },
         { name: "application-name", content: "KeepTrack" },
+        { name: "msapplication-navbutton-color", content: "#2aaa59" },
         // SEO Meta Tags
         {
           name: "description",
@@ -90,6 +92,7 @@ export default defineNuxtConfig({
     },
     workbox: {
       globPatterns: ['**/*.{js,css,html,png,svg,ico}'],
+      cleanupOutdatedCaches: true,
     },
     injectManifest: {
       globPatterns: ['**/*.{js,css,html,png,svg,ico}'],
