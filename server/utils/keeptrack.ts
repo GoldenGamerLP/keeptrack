@@ -1,7 +1,5 @@
 import database from "~/server/utils/mongodbUtils";
 import {
-  DateFormatter,
-  type DateValue,
   getLocalTimeZone,
   today,
   fromDate,
@@ -45,10 +43,29 @@ interface Statistic {
   };
 }
 
+/**
+ * Deletes a working entry from the work entry collection.
+ *
+ * @param id - The unique identifier of the working entry to delete.
+ * @param user - The user associated with the working entry.
+ * @returns A promise that resolves when the deletion is complete.
+ */
 export async function deleteWorkingEntry(id: number, user: string) {
   await workEntryCollection.deleteOne({ user, id });
 }
 
+/**
+ * Edits an existing goal in the database.
+ *
+ * @param id - The unique identifier of the goal.
+ * @param title - The new title of the goal.
+ * @param description - The new description of the goal.
+ * @param salary - The new salary associated with the goal.
+ * @param maxsalary - The maximum salary limit for the goal.
+ * @param paydayofmonth - The payday of the month for the goal.
+ * @param user - The user associated with the goal.
+ * @returns A promise that resolves to a boolean indicating whether the goal was successfully edited.
+ */
 export async function editGoal(
   id: number,
   title: string,
@@ -57,7 +74,7 @@ export async function editGoal(
   maxsalary: number,
   paydayofmonth: number,
   user: string
-) {
+): Promise<boolean> {
   const res = await goalCollection.updateOne(
     { user, id },
     {
@@ -65,9 +82,20 @@ export async function editGoal(
     }
   );
 
-  console.log(res);
+  return res.modifiedCount > 0;
 }
 
+/**
+ * Creates a new goal for a user and inserts it into the goal collection.
+ *
+ * @param title - The title of the goal.
+ * @param description - A brief description of the goal.
+ * @param salary - The salary associated with the goal.
+ * @param maxsalary - The maximum salary that can be earned from the goal.
+ * @param paydayofmonth - The day of the month when the salary is paid.
+ * @param user - The identifier of the user for whom the goal is being created.
+ * @returns A promise that resolves when the goal has been successfully inserted into the collection.
+ */
 export async function createGoal(
   title: string,
   description: string,
@@ -98,6 +126,13 @@ export async function createGoal(
   await goalCollection.insertOne(goal);
 }
 
+/**
+ * Retrieves calendar entries for a specific user within the month of the given date.
+ *
+ * @param user - The identifier of the user whose calendar entries are to be retrieved.
+ * @param date - The date within the month for which calendar entries are to be retrieved.
+ * @returns A promise that resolves to an array of `WorkEntry` objects representing the user's calendar entries for the specified month.
+ */
 export async function getCalendarEntries(
   user: string,
   date: Date
@@ -117,13 +152,31 @@ export async function getCalendarEntries(
   return userWorkEntries;
 }
 
-export async function getWorkEntries(user: string): Promise<WorkEntry[]> {
+/**
+ * Retrieves work entries for a specified user, limited to a specified number of entries.
+ *
+ * @param {string} user - The user whose work entries are to be retrieved.
+ * @param {number} [limit=20] - The maximum number of work entries to retrieve. Defaults to 20.
+ * @returns {Promise<WorkEntry[]>} A promise that resolves to an array of work entries.
+ */
+export async function getWorkEntries(user: string, limit: number = 20): Promise<WorkEntry[]> {
   return await workEntryCollection
-    .find({ user }, { limit: 20 })
+    .find({ user }, { limit })
     .sort({ date: -1 })
     .toArray();
 }
 
+/**
+ * Adds a work entry to the database for a specific user and goal.
+ *
+ * @param date - The date of the work entry.
+ * @param startWorkingTime - The start time of the work entry in military time (e.g., 1800 for 6:00 PM).
+ * @param endWorkingTime - The end time of the work entry in military time (e.g., 1900 for 7:00 PM).
+ * @param selectedGoal - The ID of the goal associated with the work entry.
+ * @param user - The username of the user adding the work entry.
+ * @returns A promise that resolves when the work entry has been successfully added.
+ * @throws Will throw an error if the specified goal is not found.
+ */
 export async function addWorkEntry(
   date: Date,
   startWorkingTime: number,
@@ -134,6 +187,7 @@ export async function addWorkEntry(
   const goal = await goalCollection.findOne({ user, id: selectedGoal });
 
   if (!goal) {
+    //Better error handling
     throw new Error("Goal not found");
   }
 
@@ -156,6 +210,12 @@ export async function addWorkEntry(
   await workEntryCollection.insertOne(workEntry);
 }
 
+/**
+ * Retrieves the goals for a specific user and calculates the total hours worked and earnings for each goal.
+ *
+ * @param {string} user - The user identifier.
+ * @returns {Promise<Goal[]>} A promise that resolves to an array of goals with updated hours worked and earnings.
+ */
 export async function getGoals(user: string): Promise<Goal[]> {
   const foundGoals = await goalCollection.find({ user }).toArray();
   const now = today(getLocalTimeZone());
@@ -203,10 +263,37 @@ export async function getGoals(user: string): Promise<Goal[]> {
   return foundGoals;
 }
 
+/**
+ * Adds a goal to the goal collection for a specified user.
+ *
+ * @param user - The identifier of the user to whom the goal belongs.
+ * @param goal - The goal object to be added to the collection.
+ * @returns A promise that resolves when the goal has been successfully added.
+ */
 export async function addGoal(user: string, goal: Goal): Promise<void> {
   await goalCollection.insertOne({ ...goal, user });
 }
 
+/**
+ * Retrieves statistical data for a given user, aggregated over different time periods:
+ * daily, weekly, monthly, and yearly.
+ *
+ * @param {string} user - The user for whom the statistics are to be calculated.
+ * @returns {Promise<Statistic>} A promise that resolves to an object containing the calculated statistics.
+ *
+ * The returned `Statistic` object contains the following properties for each time period:
+ * - `title`: The title of the overview (e.g., "Jährliche Übersicht").
+ * - `description`: A description of the overview.
+ * - `value`: The total salary for the time period.
+ * - `hours`: The total working hours for the time period.
+ *
+ * The function performs the following steps:
+ * 1. Calculates the current date and time in the local time zone.
+ * 2. Aggregates work entries for the user over the past year, month, week, and day.
+ * 3. Groups the aggregated data by summing up the salary and working times.
+ * 4. Projects the total working hours and salary for each time period.
+ * 5. Constructs the `Statistic` object with the aggregated data.
+ */
 export async function getStatistics(user: string): Promise<Statistic> {
   //Calculate the statistics -> daily, weekly, monthly, yearly with aggregation
   const statistics = {} as Statistic;
@@ -219,7 +306,10 @@ export async function getStatistics(user: string): Promise<Statistic> {
           user,
           date: {
             $gte: now.set({ month: 1, day: 1 }).toDate(getLocalTimeZone()),
-            $lt: now.set({ month: 1, day: 1 }).add({ years: 1 }).toDate(getLocalTimeZone()),
+            $lt: now
+              .set({ month: 1, day: 1 })
+              .add({ years: 1 })
+              .toDate(getLocalTimeZone()),
           },
         },
       },
@@ -254,7 +344,10 @@ export async function getStatistics(user: string): Promise<Statistic> {
           user,
           date: {
             $gte: now.set({ day: 1 }).toDate(getLocalTimeZone()),
-            $lt: now.add({ months: 1 }).set({ day: 1 }).toDate(getLocalTimeZone()),
+            $lt: now
+              .add({ months: 1 })
+              .set({ day: 1 })
+              .toDate(getLocalTimeZone()),
           },
         },
       },
@@ -323,8 +416,8 @@ export async function getStatistics(user: string): Promise<Statistic> {
         $match: {
           user,
           date: {
-            $gte:  now.toDate(getLocalTimeZone()),
-            $lt: now.add({ days: 1 }).toDate(getLocalTimeZone()),
+            $gte: now.subtract({days: 1}).toDate(getLocalTimeZone()),
+            $lt: now.add({days: 1}).toDate(getLocalTimeZone()),
           },
         },
       },

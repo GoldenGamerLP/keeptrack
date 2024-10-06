@@ -6,16 +6,17 @@
       <Tabs default-value="register" class="max-w-sm">
         <TabsList class="grid w-full grid-cols-2">
           <TabsTrigger value="register">
-            Register
+            Registesrieren
           </TabsTrigger>
           <TabsTrigger value="login">
-            Login
+            Einloggen
           </TabsTrigger>
         </TabsList>
         <TabsContent value="register">
           <Card>
             <CardHeader>
-              <CardTitle>Register</CardTitle>
+              <CardTitle>Registesrieren
+              </CardTitle>
               <CardDescription>
                 Erstelle einen Account um deine Zeiten, Gehalt, Minojob im blick zu behalten.
               </CardDescription>
@@ -23,7 +24,8 @@
             <CardContent>
               <AutoForm @submit="registerSubmit"
                 :field-config="{ password: { inputProps: { type: 'password' } }, confirmPassword: { inputProps: { type: 'password' } } }"
-                :form="registerForm" :schema="registerSchema">
+                :schema="registerSchema">
+                <p class="text-red-500">{{ fetchError }}</p>
                 <Button type="submit" class="mt-2" :loading="isLoading">
                   <Icon name="mdi:account-plus" class="mr-2 size-5" />
                   Los gehts!
@@ -35,14 +37,15 @@
         <TabsContent value="login">
           <Card>
             <CardHeader>
-              <CardTitle>Login</CardTitle>
+              <CardTitle>Einloggen</CardTitle>
               <CardDescription>
                 Logge dich ein um deine Zeiten, Gehalt, Minojob im blick zu behalten.
               </CardDescription>
             </CardHeader>
             <CardContent>
               <AutoForm :field-config="{ password: { inputProps: { type: 'password' } } }" :schema="loginSchema"
-                :form="loginForm" @submit="loginSubmit">
+                @submit="loginSubmit">
+                <p class="text-red-500">{{ fetchError }}</p>
                 <Button type="submit" class="mt-2" :loading="isLoading">
                   <Icon name="mdi:login" class="size-5 mr-2" />
                   Einloggen
@@ -57,9 +60,6 @@
 </template>
 
 <script lang="ts" setup>
-import { toTypedSchema } from "@vee-validate/zod";
-import { useEventListener, useMediaQuery } from "@vueuse/core"
-import { useForm } from "vee-validate";
 import * as z from 'zod'
 
 definePageMeta({
@@ -77,16 +77,16 @@ useHead({
   ]
 });
 
-const isStandAlone = useMediaQuery('(display-mode:standalone)');
-const isSkipInstall = ref(false);
-const isInstalled = computed(() => {
-  return isStandAlone.value || isSkipInstall.value;
-});
-const isMobile = useMediaQuery('(any-pointer:coarse) and (orientation:portrait)');
-const isInstalling = ref(true);
-const isSupported = ref(true);
-const deferredPrompt = ref<null | Event>(null);
 const isLoading = ref(false);
+const fetchError = ref('');
+
+watch(() => fetchError.value, (error) => {
+  if (error) {
+    setTimeout(() => {
+      fetchError.value = '';
+    }, 5000);
+  }
+});
 
 const loginSchema = z.object({
   email: z.string().email('Ungültige E-Mail Adresse').describe("Deine E-Mail Adresse"),
@@ -94,50 +94,14 @@ const loginSchema = z.object({
 });
 
 const registerSchema = z.object({
-  displayName: z.string().min(3, 'Name muss mindestens 3 Zeichen lang sein').max(50, 'Name darf maximal 50 Zeichen lang sein').regex(/^[a-zA-Z0-9_]*$/, 'Name darf nur Buchstaben, Zahlen und Unterstriche enthalten').describe("Dein Name"),
+  displayName: z.string().min(3, 'Name muss mindestens 3 Zeichen lang sein').describe("Dein Name"),
   email: z.string().email('Ungültige E-Mail Adresse').describe("Deine E-Mail Adresse"),
-  password: z.string().min(6, 'Passwort muss mindestens 6 Zeichen lang sein').regex(/(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])/, 'Passwort muss mindestens einen Großbuchstaben, Kleinbuchstaben und eine Zahl enthalten').describe("Dein Passwort"),
-  confirmPassword: z.string().describe("Passwort bestätigen"),
-}).refine(data => data.password !== data.email, {
-  message: 'Passwort darf nicht gleich der E-Mail sein', path: ['password']
-}).refine(data => data.password === data.confirmPassword, {
-  message: 'Passwörter stimmen nicht überein', path: ['confirmPassword']
+  password: z.string().min(6, 'Passwort muss mindestens 6 Zeichen lang sein').describe("Dein Passwort"),
+  confirmPassword: z.string().min(6, 'Passwort muss mindestens 6 Zeichen lang sein').describe("Passwort bestätigen"),
 });
-
-const registerForm = useForm({
-  validationSchema: toTypedSchema(registerSchema),
-})
-
-const loginForm = useForm({
-  validationSchema: toTypedSchema(loginSchema),
-})
-
-useEventListener(window, 'beforeinstallprompt', (event) => {
-  event.preventDefault();
-  deferredPrompt.value = event;
-}, { once: true });
-
-onMounted(() => {
-  isSupported.value = 'getInstalledRelatedApps' in navigator || 'getInstalledRelatedApps' in window;
-});
-
-const requestInstall = async () => {
-  if (!deferredPrompt.value) return;
-  isInstalling.value = true;
-
-  deferredPrompt.value.prompt();
-  const choiceResult = await deferredPrompt.value.userChoice;
-  if (choiceResult.outcome === 'accepted') {
-    goToAccount();
-    console.log('User accepted the A2HS prompt');
-  } else {
-    console.log('User dismissed the A2HS prompt');
-  }
-};
 
 const registerSubmit = async (values: Record<string, any>) => {
   isLoading.value = true;
-  console.log(values);
   try {
     const res = await $fetch('/api/v1/auth/actions/signup', {
       method: 'POST',
@@ -145,15 +109,15 @@ const registerSubmit = async (values: Record<string, any>) => {
     });
 
     if (res) {
+      goToAccount();
       console.log('User registered');
     } else {
       console.error('Failed to register');
     }
   } catch (error: any) {
-    registerForm.setErrors({ email: error.statusMessage });
+    fetchError.value = error.statusMessage;
   } finally {
     isLoading.value = false;
-    goToAccount();
   }
 };
 
@@ -166,23 +130,19 @@ const loginSubmit = async (values: Record<string, any>) => {
     });
 
     if (res) {
+      goToAccount();
       console.log('User logged in');
     } else {
       console.error('Failed to login');
     }
   } catch (error: any) {
-    loginForm.setErrors({ email: error.statusMessage });
+    fetchError.value = error.statusMessage;
   } finally {
     isLoading.value = false;
-    goToAccount();
   }
 };
 
 const goToAccount = () => {
   useRouter().push('/myaccount');
-};
-
-const skipInstall = () => {
-  isSkipInstall.value = true;
 };
 </script>

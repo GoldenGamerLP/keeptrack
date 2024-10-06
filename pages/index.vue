@@ -20,7 +20,7 @@
             </p>
         </header>
         <footer class="mx-2 w-full mb-2 space-y-2 max-w-sm sm:max-w-md">
-            <Button class="w-full" @click="requestInstall" v-if="pwaInstallSupported" :variant="(hasPrompt && isMobile) ? 'default' : 'destructive'" :disabled="!isMobile">
+            <Button class="w-full" @click="requestInstall" v-if="pwaInstallSupported && isMobile" :variant="(hasPrompt && isMobile) ? 'default' : 'destructive'" :disabled="!isMobile">
                 <Icon :name="(hasPrompt && isMobile) ? 'mdi:download' : 'mdi:close'" class="mr-2" />
                 {{ (isMobile && pwaInstallSupported && hasPrompt) ? 'Installieren' : 'Lese dir die Anleitung durch' }}
             </Button>

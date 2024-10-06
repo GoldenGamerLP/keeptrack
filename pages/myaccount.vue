@@ -219,7 +219,7 @@
             <div class="mx-2 mb-4">
                 <h2 class="text-xl font-bold">Deine letzten Arbeitszeiten</h2>
                 <ScrollArea class="h-96">
-                    <div class="bg-card text-card-foreground border-s-primary border-s-8 rounded-md p-2 mb-1"
+                    <div class="bg-card text-card-foreground border-s-primary border-s-4 rounded-md p-2 mb-1"
                         v-for="entry in workingEntries.data.value" :key="entry.id">
                         <div class="flex">
                             <h1 class="text-xl font-bold">Arbeitszeit
@@ -444,24 +444,6 @@ const format24HoursData = (value: number) => {
     const minutes = value % 100 * 0.6;
     return `${hours}:${minutes.toFixed(0).padStart(2, '0')}`;
 }
-
-interface Goal {
-    title: string;
-    description: string;
-    id: number;
-    done: {
-        hours: number;
-        earning: number;
-    };
-    given: {
-        hours: number;
-        salary: number;
-        maxsalary: number;
-    };
-}
-
-export type { Goal };
-
 const selectedCard = ref<number | null>(1);
 
 const selectCard = (id: number) => {
@@ -469,7 +451,7 @@ const selectCard = (id: number) => {
 }
 
 const currentCard = computed(() => {
-    return computedGoals.value.find((ziel: Goal) => ziel.id === selectedCard.value);
+    return computedGoals.value.find((ziel) => ziel.id === selectedCard.value);
 });
 
 const isCardSelected = (id: number) => {
@@ -477,6 +459,7 @@ const isCardSelected = (id: number) => {
 }
 
 const items = [
+    { value: -1, label: 'Gestern' },
     { value: 0, label: 'Heute' },
     { value: 1, label: 'Morgen' },
     { value: 3, label: 'In 3 tagen' },
@@ -543,9 +526,9 @@ const deleteWorkingEntry = async (id: number) => {
         console.error(error);
     } finally {
         setTimeout(() => {
-            workedDays.refresh({ dedupe: 'defer' });
-            userStats.refresh({ dedupe: 'defer' });
-            workingEntries.refresh({ dedupe: 'defer' });
+            workedDays.refresh();
+            userStats.refresh();
+            workingEntries.refresh();
 
             deleteWorkingEntryLoading.value = false;
         }, 1000);
