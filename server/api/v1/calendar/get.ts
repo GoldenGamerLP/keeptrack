@@ -1,12 +1,5 @@
 import * as z from "zod";
-import {
-  DateFormatter,
-  type DateValue,
-  getLocalTimeZone,
-  today,
-  fromDate,
-  DateTimeDuration,
-} from "@internationalized/date";
+import { getLocalTimeZone, fromDate } from "@internationalized/date";
 import { getCalendarEntries } from "~/server/utils/keeptrack";
 
 export default defineEventHandler(async (req) => {

@@ -21,7 +21,6 @@ export default defineEventHandler(async (req) => {
   }
 
     const { title, description, salary, maxsalary, paydayofmonth } = val.data;
-    console.log(val.data);
 
     await createGoal(title, description, salary, maxsalary, paydayofmonth, user.id);
 });
