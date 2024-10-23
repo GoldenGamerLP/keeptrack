@@ -204,7 +204,11 @@ export async function getWorkEntries(
 
   const workEntries = workEntryCollection.aggregate([
     { $match: { user } },
-    { $sort: { [sort]: 1 } },
+    {
+      $sort: {
+        [sort]: -1,
+      },
+    },
     {
       $lookup: {
         from: "goals",
@@ -300,13 +304,10 @@ export async function getGoals(user: string): Promise<Goal[]> {
         {
           $match: {
             user,
-            goal: goal.id,
+            goalId: goal._id,
             workingDate: {
               $gte: now.set({ day: payday }).toDate(getLocalTimeZone()),
-              $lt: now
-                .add({ months: 1 })
-                .set({ day: payday })
-                .toDate(getLocalTimeZone()),
+              $lt: now.add({ months: 1 }).toDate(getLocalTimeZone()),
             },
           },
         },
