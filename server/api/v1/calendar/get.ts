@@ -17,7 +17,7 @@ export default defineEventHandler(async (req) => {
   const entries = getCalendarEntries(req.context.user?.id || "", date);
 
   return (await entries).map((entry) =>
-    fromDate(entry.date, getLocalTimeZone()).toAbsoluteString()
+    fromDate(entry.workingDate, getLocalTimeZone()).toAbsoluteString()
   );
 });
 

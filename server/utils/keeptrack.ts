@@ -1,13 +1,11 @@
 import database from "~/server/utils/mongodbUtils";
-import {
-  getLocalTimeZone,
-  today,
-  fromDate,
-} from "@internationalized/date";
+import { getLocalTimeZone, today, fromDate } from "@internationalized/date";
+import { pipeline } from "zod";
 const goalCollection = database.collection<Goal>("goals");
 const workEntryCollection = database.collection<WorkEntry>("workEntries");
 
-interface Goal {
+export interface Goal {
+  _id?: string;
   title: string;
   description: string;
   user: string;
@@ -24,17 +22,19 @@ interface Goal {
   };
 }
 
-interface WorkEntry {
+export interface WorkEntry {
+  goalId: string;
   user: string;
   id: number;
-  date: Date;
+  workingDate: Date;
+  createdDate: Date;
   startWorkingTime: number;
   endWorkingTime: number;
   goal: number;
   salary: number;
 }
 
-interface Statistic {
+export interface Statistic {
   [key: number]: {
     title: string;
     description: string;
@@ -103,7 +103,7 @@ export async function createGoal(
   maxsalary: number,
   paydayofmonth: number,
   user: string
-) {
+): Promise<boolean> {
   const countedGoals = await goalCollection.countDocuments({ user });
 
   const goal: Goal = {
@@ -123,8 +123,24 @@ export async function createGoal(
     },
   };
 
-  await goalCollection.insertOne(goal);
+  return (await goalCollection.insertOne(goal)).acknowledged;
 }
+
+/**
+ * Checks if a user has worked on a specific date.
+ *
+ * @param date - The date to check for work entries.
+ * @param user - The user identifier to check work entries for.
+ * @returns A promise that resolves to a boolean indicating whether the user has worked on the given date.
+ */
+export const hasWorkedAt = async (workingDate: Date, user: string) => {
+  const workEntries = await workEntryCollection.countDocuments({
+    user,
+    workingDate,
+  });
+
+  return workEntries > 0;
+};
 
 /**
  * Retrieves calendar entries for a specific user within the month of the given date.
@@ -135,16 +151,21 @@ export async function createGoal(
  */
 export async function getCalendarEntries(
   user: string,
-  date: Date
+  date: Date,
+  wholeMonth: boolean = true
 ): Promise<WorkEntry[]> {
-  const currentDate = fromDate(date, getLocalTimeZone()).set({ day: 1 });
+  let currentDate = fromDate(date, getLocalTimeZone());
 
   const userWorkEntries = await workEntryCollection
     .find({
       user,
-      date: {
-        $gte: currentDate.toDate(),
-        $lt: currentDate.add({ months: 1 }).toDate(),
+      workingDate: {
+        $gte: wholeMonth
+          ? currentDate.set({ day: 0 }).toDate()
+          : currentDate.toDate(),
+        $lt: wholeMonth
+          ? currentDate.add({ months: 1 }).set({ day: 0 }).toDate()
+          : currentDate.add({ days: 1 }).toDate(),
       },
     })
     .toArray();
@@ -159,17 +180,64 @@ export async function getCalendarEntries(
  * @param {number} [limit=20] - The maximum number of work entries to retrieve. Defaults to 20.
  * @returns {Promise<WorkEntry[]>} A promise that resolves to an array of work entries.
  */
-export async function getWorkEntries(user: string, limit: number = 20): Promise<WorkEntry[]> {
-  return await workEntryCollection
-    .find({ user }, { limit })
-    .sort({ date: -1 })
-    .toArray();
+export async function getWorkEntries(
+  user: string,
+  limit: number = 20,
+  filter: "w-date" | "w-workingtime" | "w-earning" | "w-goal"
+): Promise<WorkEntry[]> {
+  let sort;
+
+  switch (filter) {
+    case "w-date":
+      sort = "createdDate";
+      break;
+    case "w-workingtime":
+      sort = "startWorkingTime";
+      break;
+    case "w-earning":
+      sort = "salary";
+      break;
+    case "w-goal":
+      sort = "goal";
+      break;
+  }
+
+  const workEntries = workEntryCollection.aggregate([
+    { $match: { user } },
+    { $sort: { [sort]: 1 } },
+    {
+      $lookup: {
+        from: "goals",
+        localField: "goalId",
+        foreignField: "_id",
+        as: "goal",
+        pipeline: [{ $project: { title: 1 } }],
+      },
+    },
+    { $unwind: "$goal" },
+    {
+      $project: {
+        goalId: 1,
+        user: 1,
+        id: 1,
+        workingDate: 1,
+        createdDate: 1,
+        startWorkingTime: 1,
+        endWorkingTime: 1,
+        goal: "$goal.title",
+        salary: 1,
+      },
+    },
+    { $limit: limit },
+  ]);
+
+  return workEntries.toArray() as Promise<WorkEntry[]>;
 }
 
 /**
  * Adds a work entry to the database for a specific user and goal.
  *
- * @param date - The date of the work entry.
+ * @param workingDate - The date of the work entry.
  * @param startWorkingTime - The start time of the work entry in military time (e.g., 1800 for 6:00 PM).
  * @param endWorkingTime - The end time of the work entry in military time (e.g., 1900 for 7:00 PM).
  * @param selectedGoal - The ID of the goal associated with the work entry.
@@ -178,17 +246,19 @@ export async function getWorkEntries(user: string, limit: number = 20): Promise<
  * @throws Will throw an error if the specified goal is not found.
  */
 export async function addWorkEntry(
-  date: Date,
+  workingDate: Date,
   startWorkingTime: number,
   endWorkingTime: number,
   selectedGoal: number,
   user: string
-): Promise<void> {
+): Promise<boolean> {
   const goal = await goalCollection.findOne({ user, id: selectedGoal });
 
   if (!goal) {
-    //Better error handling
-    throw new Error("Goal not found");
+    throw createError({
+      status: 400,
+      message: "Goal not found",
+    });
   }
 
   // 1900 - 1800 = 100 -> 1 hour -> / 100 = 1
@@ -198,16 +268,19 @@ export async function addWorkEntry(
   const countedWorkEntries = await workEntryCollection.countDocuments({ user });
 
   const workEntry: WorkEntry = {
+    goalId: goal._id,
     user,
     id: countedWorkEntries + 1,
-    date,
+    workingDate,
+    createdDate: new Date(),
     startWorkingTime,
     endWorkingTime,
     goal: selectedGoal,
     salary,
   };
 
-  await workEntryCollection.insertOne(workEntry);
+  const res = await workEntryCollection.insertOne(workEntry);
+  return res.acknowledged;
 }
 
 /**
@@ -228,7 +301,7 @@ export async function getGoals(user: string): Promise<Goal[]> {
           $match: {
             user,
             goal: goal.id,
-            date: {
+            workingDate: {
               $gte: now.set({ day: payday }).toDate(getLocalTimeZone()),
               $lt: now
                 .add({ months: 1 })
@@ -304,7 +377,7 @@ export async function getStatistics(user: string): Promise<Statistic> {
       {
         $match: {
           user,
-          date: {
+          workingDate: {
             $gte: now.set({ month: 1, day: 1 }).toDate(getLocalTimeZone()),
             $lt: now
               .set({ month: 1, day: 1 })
@@ -342,7 +415,7 @@ export async function getStatistics(user: string): Promise<Statistic> {
       {
         $match: {
           user,
-          date: {
+          workingDate: {
             $gte: now.set({ day: 1 }).toDate(getLocalTimeZone()),
             $lt: now
               .add({ months: 1 })
@@ -380,7 +453,7 @@ export async function getStatistics(user: string): Promise<Statistic> {
       {
         $match: {
           user,
-          date: {
+          workingDate: {
             $gte: now.set({ day: 1 }).toDate(getLocalTimeZone()),
             $lt: now.add({ weeks: 1 }).toDate(getLocalTimeZone()),
           },
@@ -415,9 +488,9 @@ export async function getStatistics(user: string): Promise<Statistic> {
       {
         $match: {
           user,
-          date: {
-            $gte: now.subtract({days: 1}).toDate(getLocalTimeZone()),
-            $lt: now.add({days: 1}).toDate(getLocalTimeZone()),
+          workingDate: {
+            $gte: now.subtract({ days: 1 }).toDate(getLocalTimeZone()),
+            $lt: now.add({ days: 1 }).toDate(getLocalTimeZone()),
           },
         },
       },

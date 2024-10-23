@@ -22,7 +22,7 @@ export default defineEventHandler(async (req) => {
 
     const { title, description, salary, maxsalary, id, paydayofmonth } = val.data;
 
-    await editGoal(id, title, description, salary, maxsalary, paydayofmonth, user.id);
+    return await editGoal(id, title, description, salary, maxsalary, paydayofmonth, user.id);
 });
 
 const schema = z.object({

@@ -4,6 +4,7 @@
     <NuxtPwaManifest />
     <NuxtPage />
     <SpeedInsights/>
+    <Toaster />
   </div>
 </template>
 

@@ -44,15 +44,6 @@ const isMobile = useMediaQuery('(any-pointer:coarse)');
 const isStandalone = useMediaQuery('(display-mode: standalone');
 const userAgent = ref<string>();
 
-useHead({
-    title: 'KeepTrack',
-    meta: [
-        { name: 'description', content: 'Halte deine Zeiten, Gehalt, Minojob im blick!' },
-        { name: 'theme-color', content: '#2aaa59' },
-        { name: 'publisher', content: 'KeepTrack' },
-    ],
-});
-
 onBeforeRouteUpdate(() => {
     //If display is standalone, redirect to authentication
     if (isStandalone.value) {

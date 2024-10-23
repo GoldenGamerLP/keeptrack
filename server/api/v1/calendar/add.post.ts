@@ -13,7 +13,7 @@ export default defineEventHandler(async (req) => {
 
     const { date, workTimeFrom, workTimeTo, selectedGoal } = val.data;
 
-    await addWorkEntry(
+    return await addWorkEntry(
       date,
       workTimeFrom,
       workTimeTo,
@@ -25,14 +25,9 @@ export default defineEventHandler(async (req) => {
   }
 });
 
-const schema = z
-  .object({
-    date: z.coerce.date(),
-    workTimeFrom: z.number().min(800).max(2300),
-    workTimeTo: z.number().min(800).max(2300),
-    selectedGoal: z.number().min(0).max(100),
-  })
-  .refine((data) => data.workTimeFrom < data.workTimeTo, {
-    message: "workTimeFrom must be less than workTimeTo",
-    path: ["workTimeFrom", "workTimeTo"],
-  });
+const schema = z.object({
+  date: z.coerce.date(),
+  workTimeFrom: z.number().min(800).max(2300).int(),
+  workTimeTo: z.number().min(800).max(2300).int(),
+  selectedGoal: z.number().int(),
+});
