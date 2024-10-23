@@ -163,8 +163,8 @@ export async function getCalendarEntries(
         $gte: wholeMonth
           ? currentDate.set({ day: 0 }).toDate()
           : currentDate.toDate(),
-        $lt: wholeMonth
-          ? currentDate.add({ months: 1 }).set({ day: 0 }).toDate()
+        $lte: wholeMonth
+          ? currentDate.set({ day: 0 }).add({ months: 1 }).toDate()
           : currentDate.add({ days: 1 }).toDate(),
       },
     })

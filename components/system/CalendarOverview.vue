@@ -5,7 +5,6 @@
 			<CardDescription>Die Tage an den du gearbeitet hast.</CardDescription>
 		</CardHeader>
 		<CardContent>
-			{{ crrDate }}
 			<Calendar v-model:placeholder="crrDate" :matcher="isAlreadyAdded" :max-value="today(getLocalTimeZone())"
 				:readonly="true" />
 		</CardContent>
