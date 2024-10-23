@@ -5,6 +5,7 @@
 			<CardDescription>Die Tage an den du gearbeitet hast.</CardDescription>
 		</CardHeader>
 		<CardContent>
+			{{ crrDate }}
 			<Calendar v-model:placeholder="crrDate" :matcher="isAlreadyAdded" :max-value="today(getLocalTimeZone())"
 				:readonly="true" />
 		</CardContent>
@@ -16,8 +17,8 @@ import { type DateValue, today, getLocalTimeZone } from '@internationalized/date
 import { useKeeptrackStore } from '~/store/keeptrack';
 
 const { watchPropsCal } = storeToRefs(useKeeptrackStore());
-const crrDate = today(getLocalTimeZone());
-const computedDateToString = computed(() => crrDate.toDate(getLocalTimeZone()).toISOString());
+const crrDate = ref(today(getLocalTimeZone()))  as Ref<DateValue>;
+const computedDateToString = computed(() => crrDate.value.toDate(getLocalTimeZone()).toISOString());
 
 const workedDays = useFetch("/api/v1/calendar/get", {
 	method: "GET",
