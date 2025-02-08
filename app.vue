@@ -1,13 +1,13 @@
 <template>
   <div>
-    <NuxtLoadingIndicator />
+    <NuxtLoadingIndicator color="false" class="bg-primary" />
     <NuxtPwaManifest />
     <NuxtPage />
-    <SpeedInsights/>
+    <SpeedInsights />
     <Toaster />
   </div>
 </template>
 
 <script setup lang="ts">
-import { SpeedInsights } from "@vercel/speed-insights/nuxt"
+import { SpeedInsights } from "@vercel/speed-insights/nuxt";
 </script>

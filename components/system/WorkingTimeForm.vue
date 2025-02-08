@@ -1,5 +1,5 @@
 <template>
-	<Card class="mx-2" id="arbeitszeit">
+	<Card class="mx-4" id="arbeitszeit">
 		<CardHeader>
 			<CardTitle>
 				Arbeitsstunden hinzufügen

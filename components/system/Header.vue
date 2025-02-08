@@ -1,8 +1,8 @@
 <template>
-	<header class="flex m-2 justify-between">
+	<header class="flex items-center justify-between px-4 pb-0 pt-2">
 		<div class="flex items-center">
-			<Icon name="lucide:coins" class="size-8 text-primary mr-2" />
-			<div>
+			<Icon name="lucide:coins" class="size-10 text-primary mr-2" />
+			<div class="grid">
 				<h1 class="text-2xl font-bold">KeepTrack</h1>
 				<p class="text-sm text-muted-foreground">Willkommen zurück {{ user?.displayname }}!</p>
 			</div>

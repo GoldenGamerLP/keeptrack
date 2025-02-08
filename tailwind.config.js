@@ -78,15 +78,15 @@ module.exports = {
         },
         "pulsing": {
           '0%': {
-            '-moz-box-shadow':'0 0 0 0 hsl(var(--primary) / 0)',
-            'box-shadow':'0 0 0 0 hsl(var(--primary) / 0)'
+            'transform':'scale(0.95)',
+            'box-shadow':'0 0 0 0 hsl(var(--muted-foreground))'
           },
           '70%': {
-              '-moz-box-shadow':'0 0 0 12px hsl(var(--primary) / 0.5)',
-              'box-shadow':'0 0 0 12px hsl(var(--primary) / 0.5)'
+              'transform':'scale(1)',
+              'box-shadow':'0 0 0 12px hsl(var(--muted-foreground) / 0)'
           },
           '100%': {
-              '-moz-box-shadow': '0 0 0 0 hsl(var(--primary) /  0)',
+              'transform': 'scale(0.95)',
               'box-shadow':'0 0 0 0 hsl(var(--primary) /  0)'
           },
         },
@@ -96,7 +96,7 @@ module.exports = {
         "accordion-up": "accordion-up 0.2s ease-out",
         "collapsible-down": "collapsible-down 0.2s ease-in-out",
         "collapsible-up": "collapsible-up 0.2s ease-in-out",
-        "pulsing": "pulsing 2s infinite linear forwards",
+        "pulsing": "pulsing 2s infinite",
       },
     },
   },

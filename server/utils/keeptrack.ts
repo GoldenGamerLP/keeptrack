@@ -40,6 +40,7 @@ export interface Statistic {
     description: string;
     value: number;
     hours: number;
+    icon: string;
   };
 }
 
@@ -315,23 +316,23 @@ export async function getGoals(user: string): Promise<Goal[]> {
           $group: {
             _id: null,
             salary: { $sum: "$salary" },
-            startWorkingTimeSum: { $sum: "$startWorkingTime" },
-            endWorkingTimeSum: { $sum: "$endWorkingTime" },
+            "crrHours": { $sum: { $subtract: ["$endWorkingTime", "$startWorkingTime"] } },
           },
         },
         {
           $project: {
-            hours: {
-              $subtract: ["$endWorkingTimeSum", "$startWorkingTimeSum"],
-            },
             salary: 1,
+            "crrHours": 1,
           },
         },
       ])
       .toArray();
 
-    goal.done.hours = weekly[0]?.hours || 0;
+    goal.done.hours = weekly[0]?.crrHours || 0;
     goal.done.earning = weekly[0]?.salary || 0;
+
+    //Todo: Create a function to get the goals and do this in the function!!!! 
+    goal.given.hours = goal.given.maxsalary / goal.given.salary;
   }
 
   return foundGoals;
@@ -406,9 +407,10 @@ export async function getStatistics(user: string): Promise<Statistic> {
 
   statistics[0] = {
     title: "Jährliche Übersicht",
-    description: "Jährliche Übersicht",
+    description: "Alles aus diesem Jahr",
     value: yearly[0]?.salary || 0,
     hours: yearly[0]?.hours || 0,
+    icon: "mdi:calendar-star-four-points",
   };
 
   const monthly = await workEntryCollection
@@ -444,9 +446,10 @@ export async function getStatistics(user: string): Promise<Statistic> {
 
   statistics[1] = {
     title: "Monatliche Übersicht",
-    description: "Monatliche Übersicht",
+    description: "Alles aus diesem Monat",
     value: monthly[0]?.salary || 0,
     hours: monthly[0]?.hours || 0,
+    icon: "mdi:calendar-month",
   };
 
   const weekly = await workEntryCollection
@@ -479,9 +482,10 @@ export async function getStatistics(user: string): Promise<Statistic> {
 
   statistics[2] = {
     title: "Wöchentliche Übersicht",
-    description: "Wöchentliche Übersicht",
+    description: "Alles aus dieser Woche",
     value: weekly[0]?.salary || 0,
     hours: weekly[0]?.hours || 0,
+    icon: "mdi:calendar-range",
   };
 
   const daily = await workEntryCollection
@@ -514,9 +518,10 @@ export async function getStatistics(user: string): Promise<Statistic> {
 
   statistics[3] = {
     title: "Tägliche Übersicht",
-    description: "Tägliche Übersicht",
+    description: "Von diesem Tag",
     value: daily[0]?.salary || 0,
     hours: daily[0]?.hours || 0,
+    icon: "mdi:calendar",
   };
 
   return statistics;

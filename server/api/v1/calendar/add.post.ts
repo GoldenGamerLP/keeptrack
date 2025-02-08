@@ -27,7 +27,7 @@ export default defineEventHandler(async (req) => {
 
 const schema = z.object({
   date: z.coerce.date(),
-  workTimeFrom: z.number().min(800).max(2300).int(),
-  workTimeTo: z.number().min(800).max(2300).int(),
+  workTimeFrom: z.number().min(750).max(2150).int(),
+  workTimeTo: z.number().min(850).max(2250).int(),
   selectedGoal: z.number().int(),
 });

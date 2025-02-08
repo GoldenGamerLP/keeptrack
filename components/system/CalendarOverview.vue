@@ -19,7 +19,7 @@ const { watchPropsCal } = storeToRefs(useKeeptrackStore());
 const crrDate = ref(today(getLocalTimeZone()))  as Ref<DateValue>;
 const computedDateToString = computed(() => crrDate.value.toDate(getLocalTimeZone()).toISOString());
 
-const workedDays = useFetch("/api/v1/calendar/get", {
+const workedDays = await useFetch("/api/v1/calendar/get", {
 	method: "GET",
 	headers: {
 		"Content-Type": "application/json",

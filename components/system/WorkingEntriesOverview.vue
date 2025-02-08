@@ -1,10 +1,13 @@
 <template>
-	<div class="mx-2 mb-4">
-		<div class="flex justify-between">
-			<h2 class="text-xl font-bold">Deine letzten Arbeitszeiten</h2>
+	<div class="px-4">
+		<div class="flex justify-between mb-2">
+			<h3 class="text-2xl font-bold flex items-center">
+				<Icon name="mdi:calendar-clock" class="size-8 mr-2 text-primary" />
+				Deine Arbeitszeiten
+			</h3>
 			<Popover>
 				<PopoverTrigger as-child>
-					<Button variant="link" size="sm">
+					<Button variant="link">
 						<Icon name="mdi:filter" class="size-5" />
 						Filter
 					</Button>
@@ -31,7 +34,7 @@
 		</div>
 		<ScrollArea class="h-[90vh]">
 			<Card v-for="entry in workingEntries.data.value" :key="entry.id" class="relative mb-2">
-				<div class="absolute top-2 right-2">
+				<div class="absolute top-4 right-4">
 					<Button variant="outline" size="icon" class="" @click="deleteWorkingEntry(entry.id)"
 						:loading="deleteWorkingEntryLoading" :title="`lösche arbeits eintrag ${entry.id}`">
 						<Icon name="mdi:delete-forever" class="size-5" />
@@ -47,37 +50,37 @@
 					</CardDescription>
 				</CardHeader>
 				<CardContent>
-					<div class="grid grid-cols-2 gap-2">
-						<div>
+					<ol class="grid grid-cols-2 gap-2">
+						<li>
 							<h2 class="text-lg font-semibold inline-flex items-center">
 								<Icon name="mdi:calendar" class="size-5 mr-2" />
 								Arbeitsdatum
 							</h2>
 							<p class="ml-7">{{ dateFormatter.format(new Date(entry.workingDate)) }}</p>
-						</div>
-						<div>
+						</li>
+						<li>
 							<h2 class="text-lg font-semibold inline-flex items-center">
 								<Icon name="mdi:clock-time-four-outline" class="size-5 mr-2" />
 								Arbeitszeit
 							</h2>
 							<p class="ml-7">{{ format24HoursData(entry.startWorkingTime) }} - {{
 								format24HoursData(entry.endWorkingTime) }}</p>
-						</div>
-						<div>
+						</li>
+						<li>
 							<h2 class="text-lg font-semibold inline-flex items-center">
 								<Icon name="mdi:cash" class="size-5 mr-2" />
 								Verdienst
 							</h2>
 							<p class="ml-7">{{ currencyFormatter.format(entry.salary) }}</p>
-						</div>
-						<div>
+						</li>
+						<li>
 							<h2 class="text-lg font-semibold inline-flex items-center">
 								<Icon name="mdi:target" class="size-5 mr-2" />
 								Ziel
 							</h2>
 							<p class="ml-7">{{ entry.goal }}</p>
-						</div>
-					</div>
+						</li>
+					</ol>
 				</CardContent>
 			</Card>
 			<Card class="border-dashed border-2 w-full" v-if="!workingEntries.data.value?.length">
@@ -105,7 +108,7 @@ const { currencyFormatter, dateFormatter, format24HoursData, deleteWorkingEntry 
 const { deleteWorkingEntryLoading, workingFilter, workingEntryLimit, watchPropWorkEntries } = storeToRefs(store);
 
 
-const workingEntries = useFetch("/api/v1/entries/get", {
+const workingEntries = await useFetch("/api/v1/entries/get", {
 	method: "GET",
 	headers: {
 		"Content-Type": "application/json",

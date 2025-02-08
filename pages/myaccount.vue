@@ -1,38 +1,28 @@
 <template>
-    <div class="space-y-4">
-        <Header />
-        <StatsGrid />
-        <GoalSection />
-        <WorkingTimeForm />
-        <CalendarOverview />
-        <WorkingEntriesOverview />
-    </div>
+  <div class="space-y-5">
+     <SystemHeader />
+     <SystemStatsGrid />
+     <SystemGoalSection />
+     <SystemWorkingTimeForm />
+     <WorkingEntriesOverview />
+  </div>
 </template>
 
 <script lang="ts" setup>
-import { defineAsyncComponent } from 'vue';
-import { useKeeptrackStore } from '~/store/keeptrack';
-
-const Header = defineAsyncComponent(() => import('../components/system/Header.vue'));
-const StatsGrid = defineAsyncComponent(() => import('../components/system/StatsGrid.vue'));
-const GoalSection = defineAsyncComponent(() => import('../components/system/GoalSection.vue'));
-const WorkingTimeForm = defineAsyncComponent(() => import('../components/system/WorkingTimeForm.vue'));
-const CalendarOverview = defineAsyncComponent(() => import('../components/system/CalendarOverview.vue'));
-const WorkingEntriesOverview = defineAsyncComponent(() => import('../components/system/WorkingEntriesOverview.vue'));
-
-const store = useKeeptrackStore();
+import WorkingEntriesOverview from '~/components/system/WorkingEntriesOverview.vue';
 
 definePageMeta({
-    middleware: 'only-logged-in',
+  middleware: "only-logged-in",
+  layout: "default",
 });
 
 useHead({
-    title: 'Mein Konto',
-    meta: [
-        {
-            name: 'description',
-            content: 'Dein Konto bei KeepTrack',
-        },
-    ],
+  title: "Mein Konto",
+  meta: [
+    {
+      name: "description",
+      content: "Dein Konto bei KeepTrack",
+    },
+  ],
 });
 </script>
