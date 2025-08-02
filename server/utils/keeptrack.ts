@@ -1,8 +1,22 @@
 import database from "~/server/utils/mongodbUtils";
-import { getLocalTimeZone, today, fromDate } from "@internationalized/date";
+import {
+  getLocalTimeZone,
+  today,
+  fromDate,
+  ZonedDateTime,
+  DateValue,
+} from "@internationalized/date";
 import { pipeline } from "zod";
 const goalCollection = database.collection<Goal>("goals");
 const workEntryCollection = database.collection<WorkEntry>("workEntries");
+
+export interface HoursBetweenDate {
+  _id: {
+    year: number;
+    month: number;
+  };
+  totalHoursWorked: number;
+}
 
 export interface Goal {
   _id?: string;
@@ -316,13 +330,15 @@ export async function getGoals(user: string): Promise<Goal[]> {
           $group: {
             _id: null,
             salary: { $sum: "$salary" },
-            "crrHours": { $sum: { $subtract: ["$endWorkingTime", "$startWorkingTime"] } },
+            crrHours: {
+              $sum: { $subtract: ["$endWorkingTime", "$startWorkingTime"] },
+            },
           },
         },
         {
           $project: {
             salary: 1,
-            "crrHours": 1,
+            crrHours: 1,
           },
         },
       ])
@@ -331,7 +347,7 @@ export async function getGoals(user: string): Promise<Goal[]> {
     goal.done.hours = weekly[0]?.crrHours || 0;
     goal.done.earning = weekly[0]?.salary || 0;
 
-    //Todo: Create a function to get the goals and do this in the function!!!! 
+    //Todo: Create a function to get the goals and do this in the function!!!!
     goal.given.hours = goal.given.maxsalary / goal.given.salary;
   }
 
@@ -347,6 +363,133 @@ export async function getGoals(user: string): Promise<Goal[]> {
  */
 export async function addGoal(user: string, goal: Goal): Promise<void> {
   await goalCollection.insertOne({ ...goal, user });
+}
+
+//No co-poliot here!
+//Format index: Month, value: { lastYear: number, thisYear: number }
+export async function getEarnedStatistics(user: string, from: Date, to: Date) {
+  const crrFrom = fromDate(from, getLocalTimeZone());
+  const crrTo = fromDate(to, getLocalTimeZone());
+
+  const thisYearData = workEntryCollection.aggregate(
+    formatEarnedStatisticsAggregation(user, crrFrom, crrTo)
+  );
+  const lastYearData = workEntryCollection.aggregate(
+    formatEarnedStatisticsAggregation(
+      user,
+      crrFrom.subtract({ years: 1 }),
+      crrTo.subtract({ years: 1 })
+    )
+  );
+
+  const thisYear = await thisYearData.toArray();
+  const lastYear = await lastYearData.toArray();
+
+  const earnedStatistics = [] as Earned[];
+
+  for (let i = 0; i < thisYear.length; i++) {
+    earnedStatistics.push({
+      date: new Date(thisYear[i]._id.year, thisYear[i]._id.month - 1),
+      current: thisYear[i].salary,
+      last: lastYear[i]?.salary || 0,
+    });
+  }
+
+  return earnedStatistics;
+}
+
+interface Earned {
+  date: Date;
+  current: number;
+  last: number;
+}
+
+function formatEarnedStatisticsAggregation(
+  user: string,
+  from: ZonedDateTime,
+  to: ZonedDateTime
+) {
+  return [
+    {
+      $match:
+        /**
+         * query: The query in MQL.
+         */
+        {
+          user: user,
+          workingDate: { $gte: from.toDate(), $lt: to.toDate() },
+        },
+    },
+    {
+      $group:
+        /**
+         * _id: The id of the group.
+         * fieldN: The first field name.
+         */
+        {
+          _id: {
+            month: {
+              $month: "$workingDate",
+            },
+            year: {
+              $year: "$workingDate",
+            },
+          },
+          salary: {
+            $sum: "$salary",
+          },
+        },
+    },
+    {
+      $sort:
+        /**
+         * Provide any number of field/order pairs.
+         */
+        {
+          "_id.month": 1,
+          "_id.year": 1,
+        },
+    },
+  ];
+}
+
+export async function getHoursBetweenDates(
+  userId: string,
+  from: DateValue,
+  to: DateValue
+): Promise<HoursBetweenDate[]> {
+  const hours = await workEntryCollection
+    .aggregate([
+      {
+        $project: {
+          user: 1,
+          hoursWorked: {
+            $subtract: ["$endWorkingTime", "$startWorkingTime"],
+          },
+          workingDate: 1,
+        },
+      },
+      {
+        $group: {
+          _id: {
+            year: { $year: "$workingDate" },
+            month: { $month: "$workingDate" },
+          },
+          totalHoursWorked: {
+            $sum: "$hoursWorked",
+          },
+        },
+      },
+      {
+        $sort: {
+          "_id.year": 1,
+          "_id.month": 1,
+        },
+      },
+    ])
+    .toArray();
+
+  return hours as HoursBetweenDate[];
 }
 
 /**

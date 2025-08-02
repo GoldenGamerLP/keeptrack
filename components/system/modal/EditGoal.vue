@@ -32,7 +32,7 @@
 </template>
 
 <script setup lang="ts">
-import { type Goal } from '~/pages/myaccount.vue';
+import { type Goal } from '~/pages/myaccount/index.vue';
 import Modal from './Modal.vue';
 const currentGoal = ref<Goal | null>(null);
 

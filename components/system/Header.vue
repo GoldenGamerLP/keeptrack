@@ -19,9 +19,21 @@
 				</Button>
 			</PopoverTrigger>
 			<PopoverContent class="space-y-2">
-				Benutzer: {{ user?.displayname }}
+				<span>Benutzer: {{ user?.displayname }}</span>
 				<Separator orientation="horizontal" />
 				<ColorMode />
+				<NuxtLink to="/myaccount" class="w-full block" prefetch-on="visibility">
+					<Button variant="outline" class="w-full">
+						<Icon name="mdi:account" class="mr-2 size-5" />
+						Mein Konto
+					</Button>
+				</NuxtLink>
+				<NuxtLink to="/myaccount/insights" class="w-full block" prefetch-on="visibility">
+					<Button variant="outline" class="w-full">
+						<Icon name="mdi:chart-line" class="mr-2 size-5" />
+						Statistiken
+					</Button>
+				</NuxtLink>
 				<Button class="w-full" variant="outline" @click="logOut">
 					<Icon name="mdi:account-arrow-left" class="mr-2 size-5" />
 					Logge dich aus

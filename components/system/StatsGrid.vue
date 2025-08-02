@@ -3,13 +3,13 @@
     <Card
       v-for="card in userStats.data.value"
       :key="card.title"
-      class="relative flex justify-between flex-col"
+      class="relative flex justify-between flex-col overflow-hidden"
     >
       <Icon
-        class="text-2xl absolute bg-muted-foreground top-1 right-1"
+        class="text-2xl absolute bg-muted size-24 -translate-y-1/2 top-[50%] -right-10"
         :name="card.icon"
       />
-      <CardHeader>
+      <CardHeader class="z-10">
         <CardTitle>
           {{ card.title }}
         </CardTitle>

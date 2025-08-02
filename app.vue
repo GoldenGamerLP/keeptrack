@@ -2,6 +2,7 @@
   <div>
     <NuxtLoadingIndicator color="false" class="bg-primary" />
     <NuxtPwaManifest />
+    <NuxtLayout />
     <NuxtPage />
     <SpeedInsights />
     <Toaster />

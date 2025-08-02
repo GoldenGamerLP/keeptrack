@@ -32,6 +32,9 @@ export default defineNuxtConfig({
     },
   },
   app: {
+    rootAttrs: {
+      lang: "de",
+    },
     head: {
       charset: "utf-8",
       title: "KeepTrack",
@@ -71,6 +74,7 @@ export default defineNuxtConfig({
         { name: "apple-touch-icon", content: "/pwa-192x192.png" },
       ],
     },
+    keepalive: true,
   },
   colorMode: {
     classSuffix: "",
@@ -124,6 +128,45 @@ export default defineNuxtConfig({
       navigateFallback: "/",
       navigateFallbackAllowlist: [/^\/$/],
       type: "module",
+    },
+  },
+  experimental: {
+    sharedPrerenderData: true,
+    componentIslands: true,
+  },
+  vite: {
+    optimizeDeps: {
+      include: [
+        "@shadcn-ui/vue",
+        "@shadcn-ui/vue/accordion",
+        "@shadcn-ui/vue/alert-dialog",
+        "@shadcn-ui/vue/alert",
+        "@shadcn-ui/vue/aspect-ratio",
+        "@shadcn-ui/vue/avatar",
+        "@shadcn-ui/vue/badge",
+        "@shadcn-ui/vue/button",
+        "@shadcn-ui/vue/card",
+        "@shadcn-ui/vue/checkbox",
+        "@shadcn-ui/vue/collapsible",
+        "@shadcn-ui/vue/command",
+        "@shadcn-ui/vue/dialog",
+        "@shadcn-ui/vue/dropdown-menu",
+        "@shadcn-ui/vue/form",
+        "@shadcn-ui/vue/icons",
+        "@shadcn-ui/vue/input",
+        "@shadcn-ui/vue/label",
+        "@shadcn-ui/vue/menu",
+        "@shadcn-ui/vue/popover",
+        "@shadcn-ui/vue/progress",
+        "@shadcn-ui/vue/radio-group",
+        "@shadcn-ui/vue/select",
+        "@shadcn-ui/vue/separator",
+        "@shadcn-ui/vue/sheet",
+        "@shadcn-ui/vue/skeleton",
+        "@shadcn-ui/vue/switch",
+        "@shadcn-ui/vue/table",
+        "@shadcn-ui/vue/tabs",
+      ],
     },
   },
 });

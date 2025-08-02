@@ -1,6 +1,5 @@
 <template>
   <div class="space-y-5">
-     <SystemHeader />
      <SystemStatsGrid />
      <SystemGoalSection />
      <SystemWorkingTimeForm />
@@ -13,7 +12,7 @@ import WorkingEntriesOverview from '~/components/system/WorkingEntriesOverview.v
 
 definePageMeta({
   middleware: "only-logged-in",
-  layout: "default",
+  layout: "navbar",
 });
 
 useHead({
