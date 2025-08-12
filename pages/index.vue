@@ -1,66 +1,45 @@
 <template>
-    <div class="h-screen flex flex-col justify-between items-center">
-        <header class="max-w-sm mt-32">
-            <Icon name="lucide:coins" class="animate-bounce" size="50" />
-            <h1 class="text-2xl font-bold text-primary">KeepTrack</h1>
-            <p class="text-lg max-w-sm">Halte deine Zeiten, Gehalt, Minojob im blick!</p>
-            <p class="text-sm text-muted-foreground" v-if="!isMobile">Diese App funkioniert nur auf dem Handy.</p>
-            <p v-if="isMobile && (pwaInstallSupported && !hasPrompt)" class="text-sm">
-                <Icon name="mdi:close-box" class="text-destructive" />
+    <div class="min-h-screen flex flex-col justify-between items-center container">
+        <header class="self-center mb-auto mt-[20vh] flex flex-col items-center">
+            <Icon name="lucide:coins" class="animate-bounce text-primary" size="50" />
+            <h1 class="text-primary font-bold text-3xl">
+                KeepTrack
+            </h1>
+            <p class="text-muted-foreground font-semibold">
+                Halte deine Lohn und Finanzen im Blick!
+            </p>
+            <p v-if="pwaInstallSupported" class="mt-8 text-center max-w-sm text-muted-foreground flex">
+                <Icon name="mdi:alpha-x-circle-outline" size="25" class="text-primary" />
                 <template v-if="userAgent === 'safari'">
                     Um die App zu installieren, klicke auf das Teilen-Symbol und wähle "Zum Home-Bildschirm" aus.
                 </template>
                 <template v-else>
-                    Um die App zu installieren, klicke auf Mehr oder das Teilen-Symbol und wähle "Zum Startbildschirm hinzufügen" aus.
+                    Um die App zu installieren, klicke auf Mehr oder das Teilen-Symbol und wähle "Zum Startbildschirm
+                    hinzufügen" aus.
                 </template>
             </p>
-            <p v-if="(pwaInstallSupported && hasPrompt && isMobile)" class="text-sm">
-                <Icon name="mdi:check-all" class="text-primary" />
-                Klicke auf Installieren um fortzufahren.
-            </p>
         </header>
-        <footer class="mx-2 w-full mb-2 space-y-2 max-w-sm sm:max-w-md">
-            <Button class="w-full" @click="requestInstall" v-if="pwaInstallSupported && isMobile" :variant="(hasPrompt && isMobile) ? 'default' : 'destructive'" :disabled="!isMobile">
-                <Icon :name="(hasPrompt && isMobile) ? 'mdi:download' : 'mdi:close'" class="mr-2" />
-                {{ (isMobile && pwaInstallSupported && hasPrompt) ? 'Installieren' : 'Lese dir die Anleitung durch' }}
+        <footer class="flex flex-col gap-2 mb-8">
+            <Button @click.native.stop="requestInstall()" class="w-full">
+                <Icon name="mdi:check-all" class="mr-2" />
+                Klicke auf Installieren um fortzufahren.
             </Button>
-            <Button variant="outline" class="w-full" v-if="!(pwaInstallSupported && hasPrompt)">
-                <NuxtLink to="/authentication">
-                    Ohne Installation fortfahren
-                </NuxtLink>
-            </Button>
+            <NuxtLink :to="'/authentication'" :prefetch="true">
+                <Button variant="link" class="w-full">
+                    Weiter ohne Installation
+                </Button>
+            </NuxtLink>
         </footer>
     </div>
 </template>
-
 <script lang="ts" setup>
 import type { BeforeInstallPromptEvent } from '@vite-pwa/nuxt/dist/runtime/plugins/types.js';
-import { useMediaQuery } from '@vueuse/core';
 
 const deferredPrompt = ref<BeforeInstallPromptEvent | null>(null);
 const pwaInstallSupported = ref<boolean>(false);
-const hasPrompt = computed(() => !!deferredPrompt.value);
-const isMobile = useMediaQuery('(any-pointer:coarse)');
-const isStandalone = useMediaQuery('(display-mode: standalone');
 const userAgent = ref<string>();
 
-onBeforeRouteUpdate(() => {
-    //If display is standalone, redirect to authentication
-    if (isStandalone.value) {
-        useRouter().push('/authentication');
-    }
-
-    window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault();
-        deferredPrompt.value = e as BeforeInstallPromptEvent;
-    });
-});
-
-onBeforeMount(() => {
-    if (isStandalone.value) {
-        useRouter().push('/authentication');
-    }
-})
+preloadRouteComponents("/authentication");
 
 onMounted(() => {
     window.addEventListener('beforeinstallprompt', (e) => {

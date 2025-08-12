@@ -15,7 +15,7 @@
         <TabsContent value="register">
           <Card>
             <CardHeader>
-              <CardTitle>Registesrieren
+              <CardTitle>Registrieren
               </CardTitle>
               <CardDescription>
                 Erstelle einen Account um deine Zeiten, Gehalt, Minojob im blick zu behalten.
@@ -48,7 +48,7 @@
                 <p class="text-red-500">{{ fetchError }}</p>
                 <Button type="submit" class="mt-2" :loading="isLoading">
                   <Icon name="mdi:login" class="size-5 mr-2" />
-                  Einloggen
+                  Los gehts!
                 </Button>
               </AutoForm>
             </CardContent>
@@ -65,6 +65,8 @@ import * as z from 'zod'
 definePageMeta({
   middleware: 'only-guests',
 });
+
+preloadRouteComponents("/myaccount/")
 
 useHead({
   title: 'KeepTrack - Deine Zeiten, Gehalt, Minijob im Blick',

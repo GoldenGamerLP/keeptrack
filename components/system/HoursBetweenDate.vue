@@ -150,10 +150,9 @@ const sortedSelectedMonths = computed(() => {
 
 const totalHours = computed(() => {
   if (!data.value) return 0;
-  return data.value.reduce(
-    (sum, entry) => sum + entry.totalHoursWorked / 100,
-    0
-  );
+  return data.value.reduce((sum, entry) => {
+    return sum + entry.totalHoursWorked / 100;
+  }, 0);
 });
 
 const averageHours = computed(() => {
