@@ -461,6 +461,15 @@ export async function getHoursBetweenDates(
   const hours = await workEntryCollection
     .aggregate([
       {
+        $match: {
+          user: userId,
+          createdDate: {
+            $lte: to.toDate(getLocalTimeZone()),
+            $gte: from.toDate(getLocalTimeZone()),
+          },
+        },
+      },
+      {
         $project: {
           user: 1,
           hoursWorked: {

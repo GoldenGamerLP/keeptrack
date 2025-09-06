@@ -55,7 +55,7 @@
                 <p class="text-red-500">{{ fetchError }}</p>
                 <Button type="submit" class="mt-2" :loading="isLoading">
                   <Icon name="mdi:login" class="size-5 mr-2" />
-                  Einloggen
+                  Los gehts!
                 </Button>
               </AutoForm>
             </CardContent>
@@ -73,6 +73,8 @@ import { toast } from "~/components/ui/toast";
 definePageMeta({
   middleware: "only-guests",
 });
+
+preloadRouteComponents("/myaccount/")
 
 useHead({
   title: "KeepTrack - Deine Zeiten, Gehalt, Minijob im Blick",
